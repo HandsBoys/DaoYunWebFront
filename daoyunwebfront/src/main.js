@@ -7,6 +7,13 @@ import Element from 'element-ui'
 import Cookies from 'js-cookie'
 import './assets/styles/element-variables.scss'
 import store from './store'
+import 'element-ui/lib/theme-chalk/index.css';
+
+import '@/assets/styles/index.scss' // global css
+import '@/assets/styles/ruoyi.scss' // ruoyi css
+import './assets/icons' // icon
+
+import './permission' // permission control
 
 Vue.config.productionTip = false
 
