@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-title data-title="到云管理系统">
 <h1>ddddddd</h1>
 <svg-icon icon-class="404" />
 </div>

@@ -21,6 +21,13 @@ Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
 
+//页面标题
+Vue.directive('title', {
+  inserted: function (el, binding) {
+    document.title = el.dataset.title
+  }
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
