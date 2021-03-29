@@ -69,7 +69,7 @@ export default {
         password: "admin123",
         rememberMe: false,
         code: "",
-        uuid: "",
+        uuid: ""
       },
       loginRules: {
         username: [
@@ -115,8 +115,6 @@ export default {
       };
     },
     handleLogin() {
-      console.log(this.redirect)
-
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true;
