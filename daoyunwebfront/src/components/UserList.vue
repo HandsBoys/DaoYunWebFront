@@ -341,7 +341,7 @@ export default {
         if (!value) return this.$message.error("请输入正确的修改信息");
         const _this = this;
         var params = new URLSearchParams();
-        params.append("username", this.editUserForm.username);
+        params.append("userName", this.editUserForm.username);
         params.append("email", this.editUserForm.email);
         params.append("phone", this.editUserForm.mobile);
         this.$axios
