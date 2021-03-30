@@ -1,7 +1,7 @@
 <template>
   <div id="Login">
     <div class="logheader">
-      <img src="../assets/WebLogo.png" alt="WebLogo.png">
+      <img src="../assets/img/WebLogo.png" alt="WebLogo.png">
       <span id="LogoText">到云</span>
     </div>
     <div class="logmain">
@@ -196,8 +196,8 @@ export default {
               console.log(response)
               if (response.data.code == "200") {
                 _this.$router.push({
-                  path: "index",
-                  query: { username: _this.username }
+                  path: "Welcome",
+                  //query: { username: _this.username }
                 });
               } else {
                 _this.$message.error("用户名或密码错误");
@@ -230,7 +230,7 @@ export default {
   font-size: 50px;
 }
 .logmain {
-  background: url("../assets/LoginBackGround.jpg");
+  background: url("../assets/img/LoginBackGround.jpg");
   /* size: 50%; */
 }
 .footer {

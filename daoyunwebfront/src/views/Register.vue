@@ -1,11 +1,11 @@
 <template>
   <div id="Register">
     <div class="regheader">
-      <img src="../assets/WebLogo.png" alt="WebLogo.png">
+      <img src="../assets/img/WebLogo.png" alt="WebLogo.png">
       <span id="regLogoText">到云</span>
       <div>
         <p>
-          <router-link to="/">返回登录</router-link>
+          <router-link to="/Login">返回登录</router-link>
         </p>
       </div>
     </div>

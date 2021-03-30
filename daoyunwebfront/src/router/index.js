@@ -1,51 +1,45 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '@/components/Login'
-import Register from '@/components/Register'
-import ForgotPass from '@/components/ForgotPass'
-import index from '@/components/index'
-import welcome from '@/components/welcome'
-import UserList from '@/components/UserList'
-
-import Login2 from '@/components/Login2'
 
 Vue.use(Router)
 
 export default new Router({
-  mode: 'hash',  //部署修改
   routes: [
-    { path: '/', redirect: '/Login' }
-    ,
     {
       path: '/Login',
-      name: 'Login',
-      component: Login
+      component: () => import('../views/Login.vue'),
+      meta: { title: '登录' }
     },
     {
       path: '/Register',
-      name: 'Register',
-      component: Register
+      component: () => import('../views/Register.vue'),
+      meta: { title: '注册' }
     },
     {
-      path: '/ForgotPass',
-      name: 'ForgotPass',
-      component: ForgotPass
+      path: '/',
+      redirect: '/Welcome'
     },
     {
-      path: '/Login2',
-      name: 'Login2',
-      component: Login2
-    },
-    {
-      path: '/index',
-      component: index,
-      redirect: '/welcome',
+      path: '/Home',
+      component: () => import('../views/Home.vue'),
+      meta: { title: '主页' },
       children: [
-        { path: '/welcome', component: welcome },
-        { path: '/UserList', component: UserList }
+        {
+          path: '/Welcome',
+          component: () => import('../views/Welcome.vue'),
+          meta: { title: '系统首页' }
+        },
+        {
+          path: '/table',
+          component: () => import('../views/UseTable.vue'),
+          meta: { title: '使用表格样例' }
+        },
+        {
+          path: '/form',
+          component: () => import('../views/UseForm.vue'),
+          meta: { title: '使用编辑样例' }
+        },
       ]
-    }
+    },
   ]
-}) 
-
-
+})

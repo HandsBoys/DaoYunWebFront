@@ -64,23 +64,7 @@ module.exports = {
           limit: 10000,
           name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
         }
-      },
-      {
-        test: /\.sass$/,
-        loaders: ['style', 'css', 'sass']
-      },
-      {
-        test: /\.less$/,
-        loader: "style-loader!css-loader!less-loader",
       }
-    //   {
-    //     test:/\.css$/,
-    //     loader:'style-loader'
-    //  },
-    //  {
-    //     test:/\.css$/,
-    //     loader:'css-loader'
-    //  },
     ]
   },
   node: {
