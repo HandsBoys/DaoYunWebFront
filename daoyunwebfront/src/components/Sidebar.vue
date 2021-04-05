@@ -11,6 +11,34 @@
       router
     >
       <template v-for="item in items">
+        <template v-if="ifHaveChildren(item)">
+          <el-submenu :index="item.path + '' " :key="item.path">
+            <template slot="title">
+              <i :class="item.icon"></i>
+              <span slot="title">{{ item.menuName }}</span>
+            </template>
+            <template v-for="subItem in item.children">
+              <el-submenu v-if="ifHaveChildren(subItem)" :index="subItem.path" :key="subItem.path">
+                <template slot="title">{{ subItem.menuName }}</template>
+                <el-menu-item
+                  v-for="(threeItem,i) in subItem.children"
+                  :key="i"
+                  :index="threeItem.path"
+                >{{ threeItem.menuName }}</el-menu-item>
+              </el-submenu>
+              <el-menu-item v-else :index="subItem.path" :key="subItem.path">{{ subItem.menuName }}</el-menu-item>
+            </template>
+          </el-submenu>
+        </template>
+        <template v-else>
+          <el-menu-item :index="item.path" :key="item.path">
+            <i :class="item.icon"></i>
+            <span slot="title">{{ item.menuName }}</span>
+          </el-menu-item>
+        </template>
+      </template>
+
+      <!-- <template v-for="item in items">
         <template v-if="item.subs">
           <el-submenu :index="item.index" :key="item.index">
             <template slot="title">
@@ -36,14 +64,14 @@
             <span slot="title">{{ item.title }}</span>
           </el-menu-item>
         </template>
-      </template>
+      </template> -->
     </el-menu>
-
   </div>
 </template>
 
 <script>
 import bus from "../api/bus";
+import { getSideBarApi } from "@/api/api";
 export default {
   data() {
     return {
@@ -144,6 +172,7 @@ export default {
           title: "支持作者"
         }
       ],
+      item2s: [],
       // 当前激活的路径（第二级菜单栏）
       activepath: ""
     };
@@ -154,6 +183,7 @@ export default {
     }
   },
   created() {
+    this.getMenu();
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
     bus.$on("collapse", msg => {
       this.collapse = msg;
@@ -161,6 +191,33 @@ export default {
     });
   },
   methods: {
+    getMenu() {
+      //使用token获取用户id 未做
+      const _this = this;
+      var userId = 2;
+      getSideBarApi(userId)
+        .then(function(response) {
+          _this.items = response.data.data;
+          console.log(response);
+          console.log(_this.items);
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    ifHaveChildren(item) {
+      //判断菜单项是否存在子数组
+      if (item.children instanceof Array) {
+        let arr = [];
+        arr = item.children;
+        // console.log("sss " + arr.length)
+        if (arr.length == 0) {
+          return false;
+        }
+        return true;
+      }
+      return true;
+    }
   }
 };
 </script>

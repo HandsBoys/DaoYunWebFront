@@ -1,5 +1,5 @@
 <template>
-  <div id="Register">
+  <div id="ForgetPassword">
     <div class="regheader">
       <img src="../assets/img/WebLogo.png" alt="WebLogo.png">
       <span id="regLogoText">到云</span>
@@ -12,21 +12,14 @@
     <div class="regmain">
       <div class="regbox">
         <div class="regbox2">
-          <p class="regbox2_1">注册到云新账号</p>
-          <p>使用手机号注册后，你可以通过手机号加密码登录，也可以使用短信验证码进行登录</p>
+          <el-steps :active="0" align-center>
+            <el-step title="身份验证"></el-step>
+            <el-step title="密码重置"></el-step>
+            <el-step title="重置完成"></el-step>
+          </el-steps>
         </div>
         <div class="regbox3">
           <el-input v-model="username" placeholder="手机号"></el-input>
-          <el-tooltip
-            class="item"
-            effect="dark"
-            content="密码为6-16位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符"
-            placement="right"
-          >
-            <el-input placeholder="密码" v-model="password" show-password></el-input>
-          </el-tooltip>
-        </div>
-        <div class="regbox4">
           <div class="regbox4_1">
             <div class="jc-component__range">
               <div class="jc-range" :class="rangeStatus?'success':''">
@@ -40,12 +33,8 @@
             <el-button type="primary" :disabled="btnChangeEnable">获取验证码</el-button>
           </div>
         </div>
-        <div class="regbox5">
-          <el-checkbox v-model="checked">我已阅读并同意</el-checkbox>
-          <el-link type="primary">《用户协议》</el-link>
-        </div>
-        <div class="regbox6">
-          <el-button :plain="true" type="primary" class="regButton" @click="register()">注册</el-button>
+        <div class="regbox4">
+          <el-button :plain="true" type="primary" class="regButton" @click="register()">下一步</el-button>
         </div>
       </div>
     </div>
@@ -56,9 +45,8 @@
 </template>
 
 <script>
-import { registerApi } from "@/api/api";
 export default {
-  name: "Register",
+  name: "ForgetPassword",
   props: {
     // 成功之后的函数
     successFun: {
@@ -178,23 +166,6 @@ export default {
             .catch(function(error) {
               console.log(error);
             });
-
-          // this.$axios
-          //   .post("http://1.15.31.156:8081/sign?", params)
-          //   .then(function(response) {
-          //     if (response.data.code == "200") {
-          //        _this.$message.error("注册成功");
-          //       // _this.$router.push({
-          //       //   path: "index",
-          //       //   query: { username: _this.username }
-          //       // });
-          //     } else {
-          //       _this.$message.error("注册失败");
-          //     }
-          //   })
-          //   .catch(function(error) {
-          //     console.log(error);
-          //   });
         }
       }
     }
@@ -203,7 +174,7 @@ export default {
 </script>
 
 <style scoped>
-#Register {
+#ForgetPassword {
   width: 100%;
   height: 100%;
   background-color: #f5f5f5;

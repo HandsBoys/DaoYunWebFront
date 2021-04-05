@@ -20,6 +20,10 @@
               <i class="el-icon-edit"></i>
               编辑
             </el-button>
+            <el-button @click="edit(scope.row)" size="mini" type="info">
+              <i class="el-icon-delete"></i>
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -62,12 +66,14 @@ export default {
   },
   created() {
     this.getData();
+    //console.log("this.tableData " + this.tableData);
   },
   methods: {
     // 接收prop数据
     getData() {
-        this.tableData = this.tData;
-        this.cols = this.tCols;
+      this.tableData = this.tData;
+      this.cols = this.tCols;
+      this.pageTotal = this.tableData.length;
     },
     // 触发搜索按钮
     handleSearch() {

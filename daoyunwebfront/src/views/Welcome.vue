@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>welcomeddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</h1>
+    <img src="../assets/img/welcome.gif" alt="welcome.gif">
 
   </div>
 </template>

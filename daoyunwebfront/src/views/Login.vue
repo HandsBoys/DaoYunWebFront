@@ -39,7 +39,7 @@
           <div class="box3_3">
             <el-checkbox v-model="checked">30天自动登录</el-checkbox>
             <p>
-              <router-link to>忘记密码</router-link>
+              <router-link :to="{ path: '/ForgetPassword' }" class="box3_3_1">忘记密码</router-link>
             </p>
           </div>
         </div>
@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import { loginApi } from "@/api/api";
 export default {
   name: "Login",
   props: {
@@ -186,17 +187,17 @@ export default {
           this.$message.error("密码不正确，请重新输入");
         } else {
           //连接后台判断账号密码，正确登入，错误提示
-          const  _this = this;
+          const _this = this;
           var params = new URLSearchParams();
           params.append("username", this.username);
           params.append("password", this.password);
-          this.$axios
-            .post("http://1.15.31.156:8081/login?", params)
+
+          loginApi(params)
             .then(function(response) {
-              console.log(response)
+              console.log(response);
               if (response.data.code == "200") {
                 _this.$router.push({
-                  path: "Welcome",
+                  path: "Welcome"
                   //query: { username: _this.username }
                 });
               } else {
@@ -207,6 +208,22 @@ export default {
               console.log(error);
             });
 
+          // this.$axios
+          //   .post("http://1.15.31.156:8081/login?", params)
+          //   .then(function(response) {
+          //     console.log(response)
+          //     if (response.data.code == "200") {
+          //       _this.$router.push({
+          //         path: "Welcome",
+          //         //query: { username: _this.username }
+          //       });
+          //     } else {
+          //       _this.$message.error("用户名或密码错误");
+          //     }
+          //   })
+          //   .catch(function(error) {
+          //     console.log(error);
+          //   });
         }
       }
     }
@@ -323,6 +340,9 @@ export default {
   display: flex;
   justify-content: space-around;
   align-items: center;
+}
+.box3_3_1 {
+  color: black;
 }
 .el-checkbox {
   color: black;
