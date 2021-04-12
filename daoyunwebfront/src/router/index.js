@@ -1,13 +1,19 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { getToken } from '@/utils/auth'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/Login',
       component: () => import('../views/Login.vue'),
+      meta: { title: '登录' }
+    },
+    {
+      path: '/Login2',
+      component: () => import('../views/Login2.vue'),
       meta: { title: '登录' }
     },
     {
@@ -16,14 +22,24 @@ export default new Router({
       meta: { title: '忘记密码' }
     },
     {
+      path: '/ForgetPassword2',
+      component: () => import('../views/ForgetPassword2.vue'),
+      meta: { title: '忘记密码' }
+    },
+    {
       path: '/Register',
       component: () => import('../views/Register.vue'),
       meta: { title: '注册' }
     },
     {
-      path: '/',
-      redirect: '/Welcome'
+      path: '/Register2',
+      component: () => import('../views/Register2.vue'),
+      meta: { title: '注册' }
     },
+    // {
+    //   path: '/',
+    //   redirect: '/Welcome'
+    // },
     {
       path: '/Home',
       component: () => import('../views/Home.vue'),
@@ -38,6 +54,21 @@ export default new Router({
           path: '/UserManage',
           component: () => import('../views/UserManage.vue'),
           meta: { title: '用户管理' }
+        },
+        {
+          path: '/DictManage',
+          component: () => import('../views/DictManage.vue'),
+          meta: { title: '字典管理' }
+        },
+        {
+          path: '/DictDataManage',
+          component: () => import('../views/DictDataManage.vue'),
+          meta: { title: '字典数据' }
+        },
+        {
+          path: '/ParameterManage',
+          component: () => import('../views/ParameterManage.vue'),
+          meta: { title: '参数管理' }
         },
         {
           path: '/form',
@@ -68,3 +99,15 @@ export default new Router({
     },
   ]
 })
+
+//挂载路由导航守卫
+// router.beforeEach((to, from, next) => {
+//   if (to.path === '/Login2') return next();
+//   //获取token
+//   const tokenStr = getToken()
+//   if (!tokenStr) return next('/Login2')
+//   next()
+// })
+
+
+export default router

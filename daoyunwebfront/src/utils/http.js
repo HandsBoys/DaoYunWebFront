@@ -16,6 +16,16 @@ const http ={
         if(params) config.params = params
         return request(config)
     },
+    //获取验证码图片
+    getCodeImg(url,params){
+        const config = {
+            method: 'get',
+            url:url,
+            responseType: 'arraybuffer' // 最为关键
+        }
+        if(params) config.params = params
+        return request(config)
+    },
     post(url,params){
         const config = {
             method: 'post',
@@ -25,6 +35,34 @@ const http ={
         console.log("http.js post params=" + params);
         if(params) config.data = params;
         console.log("http.js post config.data=" + config.data);
+        return request(config)
+    },
+    //登录
+    postLogin(url,password, userName){
+        const data = {
+            password,
+            userName
+        }
+        //console.log(data)
+        const config = {
+            method: 'post',
+            url:url,
+            data:data
+        }
+        return request(config)
+    },
+    //注册
+    postRegister(url,password, userName,code){
+        const data = {
+            password,
+            userName,
+            code
+        }
+        const config = {
+            method: 'post',
+            url:url,
+            data:data
+        }
         return request(config)
     },
     put(url,params){

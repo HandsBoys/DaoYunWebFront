@@ -64,7 +64,7 @@
             <span slot="title">{{ item.title }}</span>
           </el-menu-item>
         </template>
-      </template> -->
+      </template>-->
     </el-menu>
   </div>
 </template>
@@ -184,6 +184,9 @@ export default {
   },
   created() {
     this.getMenu();
+
+
+
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
     bus.$on("collapse", msg => {
       this.collapse = msg;

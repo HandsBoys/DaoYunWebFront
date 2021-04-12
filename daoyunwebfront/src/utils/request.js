@@ -1,38 +1,9 @@
-// import axios from 'axios';
-
-// const service = axios.create({
-//     timeout: 5000
-// });
-
-// service.interceptors.request.use(
-//     config => {
-//         return config;
-//     },
-//     error => {
-//         console.log(error);
-//         return Promise.reject();
-//     }
-// );
-
-// service.interceptors.response.use(
-//     response => {
-//         if (response.status === 200) {
-//             return response.data;
-//         } else {
-//             Promise.reject();
-//         }
-//     },
-//     error => {
-//         console.log(error);
-//         return Promise.reject();
-//     }
-// );
-
-// export default service;
 // 导入axios
 import axios from 'axios'
 // 使用element-ui Message做消息提醒
 import { Message } from 'element-ui';
+
+import { getToken } from '@/utils/auth'
 //1. 创建新的axios实例，
 const service = axios.create({
     // 公共接口--这里注意后面会讲
@@ -46,9 +17,11 @@ service.interceptors.request.use(config => {
     // config.data = JSON.stringify(config.data); //数据转化,也可以使用qs转换
     // console.log("request.js post config.data=" + config.data);
     config.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded' //配置请求头
+        'Content-Type': 'application/json;charset=UTF-8' //配置请求头
     }
     //注意使用token的时候需要引入cookie方法或者用本地localStorage等方法，推荐js-cookie
+    config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 
+    //console.log(config)
     // const token = getCookie('名称');//这里取token之前，你肯定需要先拿到token,存一下
     // if (token) {
     //     config.params = { 'token': token } //如果要求携带在参数中

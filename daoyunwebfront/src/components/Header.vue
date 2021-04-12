@@ -14,19 +14,6 @@
             <i class="el-icon-rank"></i>
           </el-tooltip>
         </div>
-        <!-- 消息中心 -->
-        <!-- <div class="btn-bell">
-                    <el-tooltip
-                        effect="dark"
-                        :content="message?`有${message}条未读消息`:`消息中心`"
-                        placement="bottom"
-                    >
-                        <router-link to="/tabs">
-                            <i class="el-icon-bell"></i>
-                        </router-link>
-                    </el-tooltip>
-                    <span class="btn-bell-badge" v-if="message"></span>
-        </div>-->
         <!-- 用户头像 -->
         <div class="user-avator">
           <img src="../assets/img/img.jpg">
@@ -47,6 +34,8 @@
 </template>
 <script>
 import bus from "../api/bus";
+import Cookies from "js-cookie";
+import { removeToken } from '@/utils/auth'
 export default {
   name:"Header",
   data() {
@@ -59,7 +48,7 @@ export default {
   },
   computed: {
     username() {
-      let username = localStorage.getItem("ms_username");
+      let username = Cookies.get("username");
       return username ? username : this.name;
     }
   },
@@ -67,8 +56,8 @@ export default {
     // 用户名下拉菜单选择事件
     handleCommand(command) {
       if (command == "loginout") {
-        localStorage.removeItem("ms_username");
-        this.$router.push("/login");
+        removeToken();
+        this.$router.push("/Login2");
       }
     },
     // 侧边栏折叠

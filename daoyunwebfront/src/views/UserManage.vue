@@ -35,22 +35,25 @@ export default {
       var _this = this;
       getUserInfoListApi()
         .then(function(response) {
-          for (var i = 0; i < response.data.length; i++) {
-            var rolename;
-            if (response.data[i].role == null) {
-              rolename = "";
-            } else {
-              rolename = response.data[i].role.roleName;
-            }
-            var ob = {
-              userId: response.data[i].userId,
-              userName: response.data[i].userName,
-              email: response.data[i].email,
-              sex: response.data[i].sex,
-              roleName: rolename
-            };
-            _this.tableData[i] = ob;
-          }
+          console.log(response.data);
+          _this.tableData = response.data;
+          // for (var i = 0; i < response.data.length; i++) {
+          //   var rolename;
+          //   if (response.data[i].role == null) {
+          //     rolename = "";
+          //   } else {
+          //     rolename = response.data[i].role.roleName;
+          //   }
+          //   var ob = {
+          //     userId: response.data[i].userId,
+          //     userName: response.data[i].userName,
+          //     email: response.data[i].email,
+          //     sex: response.data[i].sex,
+          //     roleName: rolename
+          //   };
+          //   _this.tableData[i] = ob;
+            
+          // }
           _this.ifshow = true;
         })
         .catch(function(error) {
