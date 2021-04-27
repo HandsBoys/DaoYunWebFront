@@ -6,40 +6,45 @@ Vue.use(Router)
 
 const router = new Router({
   routes: [
-    {
-      path: '/Login',
-      component: () => import('../views/Login.vue'),
-      meta: { title: '登录' }
-    },
+    // {
+    //   path: '/Demo',
+    //   component: () => import('../views/Demo.vue'),
+    //   meta: { title: '登录' }
+    // },
+    // {
+    //   path: '/Login',
+    //   component: () => import('../views/Login.vue'),
+    //   meta: { title: '登录' }
+    // },
     {
       path: '/Login2',
       component: () => import('../views/Login2.vue'),
       meta: { title: '登录' }
     },
-    {
-      path: '/ForgetPassword',
-      component: () => import('../views/ForgetPassword.vue'),
-      meta: { title: '忘记密码' }
-    },
+    // {
+    //   path: '/ForgetPassword',
+    //   component: () => import('../views/ForgetPassword.vue'),
+    //   meta: { title: '忘记密码' }
+    // },
     {
       path: '/ForgetPassword2',
       component: () => import('../views/ForgetPassword2.vue'),
       meta: { title: '忘记密码' }
     },
-    {
-      path: '/Register',
-      component: () => import('../views/Register.vue'),
-      meta: { title: '注册' }
-    },
+    // {
+    //   path: '/Register',
+    //   component: () => import('../views/Register.vue'),
+    //   meta: { title: '注册' }
+    // },
     {
       path: '/Register2',
       component: () => import('../views/Register2.vue'),
       meta: { title: '注册' }
     },
-    // {
-    //   path: '/',
-    //   redirect: '/Welcome'
-    // },
+    {
+      path: '/',
+      redirect: '/Login2'
+    },
     {
       path: '/Home',
       component: () => import('../views/Home.vue'),
@@ -102,11 +107,15 @@ const router = new Router({
 
 //挂载路由导航守卫
 // router.beforeEach((to, from, next) => {
-//   if (to.path === '/Login2') return next();
-//   //获取token
-//   const tokenStr = getToken()
-//   if (!tokenStr) return next('/Login2')
-//   next()
+//   if (to.path === '/') {
+//     const tokenStr = getToken();
+//     console.log("router")
+//     if(tokenStr=="") {
+//       return next('/Login2')
+//     }else {
+//       return next('/Welcome');
+//     }
+//   } 
 // })
 
 

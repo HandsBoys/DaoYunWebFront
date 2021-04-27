@@ -10,12 +10,12 @@ import { routerToLogin } from "@/utils/routerGuard";
 export default {
   name: "Welcome",
   created() {
-    var bo = routerToLogin();
-    if (bo) {
-      this.$router.push({
-        path: "Login2"
-      });
-    }
+    // var bo = routerToLogin();
+    // if (bo) {
+    //   this.$router.push({
+    //     path: "Login2"
+    //   });
+    // }
   }
 };
 </script>

@@ -3,10 +3,10 @@
     <el-form ref="registerForm" :model="registerForm" :rules="registerRules" class="register-form">
       <h3 class="title">注册到云新账号</h3>
       <div>
-        <el-form-item prop="username">
+        <el-form-item prop="phone">
           <el-input
             ref="inputPhone"
-            v-model="registerForm.username"
+            v-model="registerForm.phone"
             prefix-icon="el-icon-login-user"
             type="text"
             auto-complete="off"
@@ -37,6 +37,7 @@
             :text-size="textSize"
             :success-icon="successIcon"
             ref="Verify"
+            v-if="updateDrag"
           ></drag-verify>
         </el-form-item>
         <el-form-item prop="code">
@@ -49,7 +50,12 @@
             @keyup.enter.native="handleRegister"
           ></el-input>
           <div class="register-mesCode">
-            <el-button type="primary" plain :disabled="btnChangeEnable">获取验证码</el-button>
+            <el-button
+              type="primary"
+              plain
+              :disabled="btnChangeEnable"
+              @click="getMessCode"
+            >{{btntxt}}</el-button>
           </div>
         </el-form-item>
       </div>
@@ -80,7 +86,7 @@
 <script>
 import "font-awesome/css/font-awesome.min.css";
 import dragVerify from "vue-drag-verify";
-import { registerApi } from "@/api/api";
+import { registerApi, getMessCodeApi } from "@/api/api";
 import { encrypt, decrypt } from "@/utils/jsencrypt";
 export default {
   name: "Register2",
@@ -92,15 +98,13 @@ export default {
       codeUrl: "",
       cookiePassword: "",
       registerForm: {
-        username: "",
+        phone: "",
         password: "",
         rememberMe: false,
         code: ""
       },
       registerRules: {
-        username: [
-          { required: true, trigger: "blur", message: "用户名不能为空" }
-        ],
+        phone: [{ required: true, trigger: "blur", message: "手机号不能为空" }],
         password: [
           { required: true, trigger: "blur", message: "密码不能为空" }
         ],
@@ -122,7 +126,11 @@ export default {
       textSize: "18px",
       isCircle: "false",
 
-      btnChangeEnable: true
+      btnChangeEnable: true,
+      time: 0,
+      btntxt: "获取验证码",
+
+      updateDrag: true
     };
   },
   watch: {
@@ -134,8 +142,6 @@ export default {
     }
   },
   created() {
-    // this.getCode();
-    // this.getCookie();
   },
   methods: {
     // 滑动完成消失
@@ -153,30 +159,78 @@ export default {
           //console.log("dd");
           const _this = this;
 
-          //加密密码
-          var encryptPass = encrypt(this.registerForm.password);
+          if (this.registerForm.rememberMe == false) {
+            this.$message.error("注册需同意用户协议");
+          } else {
+            //加密密码
+            var encryptPass = encrypt(this.registerForm.password);
 
-          var params = new URLSearchParams();
-          params.append("userName", this.registerForm.username);
-          params.append("password", encryptPass);
-        //  params.append("code", this.registerForm.code);
-
-          registerApi(this.registerForm.password, this.registerForm.username, this.registerForm.code)
-            .then(function(response) {
-              console.log(response);
-              if (response.data.code == "200") {
-                _this.$message.error("注册成功");
-                _this.toLogin();
-                // });
-              } else {
-                _this.$message.error("注册失败");
-              }
-            })
-            .catch(function(error) {
-              console.log(error);
-            });
+            registerApi(
+              this.registerForm.password,
+              this.registerForm.phone,
+              this.registerForm.code,
+              this.registerForm.phone
+            )
+              .then(function(response) {
+                console.log(response);
+                if (response.data.code == "200") {
+                  _this.$message.success("注册成功");
+                  _this.toLogin();
+                  // });
+                } else {
+                  _this.$message.error("注册失败");
+                }
+              })
+              .catch(function(error) {
+                console.log(error);
+              });
+          }
         }
       });
+    },
+    getMessCode() {
+      //发送短信前先校验手机号是否合法
+      var testPhone = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+      var _this = this;
+      if (this.registerForm.phone == "") {
+        this.$message.error("请输入手机号");
+      } else if (!testPhone.test(this.registerForm.phone)) {
+        this.$message.error("手机号格式错误，请重新输入");
+      } else {
+        console.log(this.registerForm.phone);
+        getMessCodeApi(this.registerForm.phone)
+          .then(function(response) {
+            if (response.data.code == "200") {
+              _this.$message.success("短信发送成功");
+            } else {
+              _this.$message.error("短信发送失败");
+            }
+            console.log(response);
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+      }
+      //开始计时，35s后获取验证码按钮才可按
+      this.time = 35;
+      this.btnChangeEnable = true;
+      this.timer();
+    },
+    timer() {
+      if (this.time > 0) {
+        this.time--;
+        this.btntxt = this.time + "s,后重新获取验证码";
+        setTimeout(this.timer, 1000);
+      } else {
+        this.time = 0;
+        this.btntxt = "获取验证码";
+
+        this.updateDrag = false;
+
+        this.$nextTick(() => {
+          this.updateDrag = true;
+        });
+      }
     }
   }
 };

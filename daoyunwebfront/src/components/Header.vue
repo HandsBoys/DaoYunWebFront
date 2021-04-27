@@ -48,7 +48,8 @@ export default {
   },
   computed: {
     username() {
-      let username = Cookies.get("username");
+      //获取sessionStorage中的用户名
+      let username = sessionStorage.getItem('username');
       return username ? username : this.name;
     }
   },

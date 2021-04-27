@@ -7,26 +7,22 @@ import { getToken } from '@/utils/auth'
 //1. 创建新的axios实例，
 const service = axios.create({
     // 公共接口--这里注意后面会讲
-    baseURL: 'http://1.15.31.156:8081',
+    baseURL: '/api',
+    // baseURL: 'http://1.15.31.156:8081',
     // 超时时间 单位是ms，这里设置了3s的超时时间
-    timeout: 10 * 1000
+    timeout: 10 * 1000,
+    withCredentials: true,
+    crossDomain: true
 })
 // 2.请求拦截器
 service.interceptors.request.use(config => {
     //发请求前做的一些处理，数据转化，配置请求头，设置token,设置loading等，根据需求去添加
-    // config.data = JSON.stringify(config.data); //数据转化,也可以使用qs转换
-    // console.log("request.js post config.data=" + config.data);
+    //console.log(config)
     config.headers = {
         'Content-Type': 'application/json;charset=UTF-8' //配置请求头
     }
     //注意使用token的时候需要引入cookie方法或者用本地localStorage等方法，推荐js-cookie
     config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 
-    //console.log(config)
-    // const token = getCookie('名称');//这里取token之前，你肯定需要先拿到token,存一下
-    // if (token) {
-    //     config.params = { 'token': token } //如果要求携带在参数中
-    //     config.headers.token = token; //如果要求携带在请求头中
-    // }
     return config
 }, error => {
     Promise.reject(error)
@@ -54,7 +50,7 @@ service.interceptors.response.use(response => {
                 break;
             case 404:
                 error.message = '请求错误,未找到该资源'
-                window.location.href = "/NotFound"
+                //window.location.href = "/NotFound"
                 break;
             case 405:
                 error.message = '请求方法未允许'

@@ -4,12 +4,16 @@
       class="sidebar-el-menu"
       :default-active="onRoutes"
       :collapse="collapse"
-      background-color="#324157"
+      :background-color="backgroundColor"
       text-color="#bfcbd9"
       active-text-color="#20a0ff"
       unique-opened
       router
     >
+      <!-- background-color="#324157"
+      text-color="#bfcbd9"      
+      active-text-color="#20a0ff"
+      -->
       <template v-for="item in items">
         <template v-if="ifHaveChildren(item)">
           <el-submenu :index="item.path + '' " :key="item.path">
@@ -72,6 +76,8 @@
 <script>
 import bus from "../api/bus";
 import { getSideBarApi } from "@/api/api";
+import Cookies from "js-cookie";
+
 export default {
   data() {
     return {
@@ -174,17 +180,22 @@ export default {
       ],
       item2s: [],
       // 当前激活的路径（第二级菜单栏）
-      activepath: ""
+      activepath: "",
+      
     };
   },
   computed: {
     onRoutes() {
       return this.$route.path.replace("/", "");
+    },
+    backgroundColor() {
+      return this.$store.state.backgroundColor;
     }
   },
   created() {
     this.getMenu();
 
+    //获取侧边栏各种颜色
 
 
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏

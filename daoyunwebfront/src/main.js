@@ -9,16 +9,22 @@ import './assets/css/icon.css';
 import './assets/css/color-dark.css';
 import axios from 'axios';
 import './assets/css/main.css';
+import Vuex from 'vuex'
+import store from './store/store'
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios;
+
 
 Vue.use(ElementUI, {
   size: 'small'
 });
 
+Vue.use(Vuex)
+
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app');
 

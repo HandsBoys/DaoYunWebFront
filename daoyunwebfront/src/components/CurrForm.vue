@@ -24,19 +24,16 @@
 </template>
 
 <script>
-import http from "../utils/http";
-import request from "../utils/request";
 export default {
   name: "CurrForm",
-  props: ["fContent", "fRules", "subUrl"],
+  props: ["fContent", "fRules", "mType"],
   data() {
     return {
       dynamicValidateForm: {},
       formContent: [],
-      tempContent: [],
       rules: [],
-      id: "",
-      subURL: ""
+      methodType: "",
+      id: ""
     };
   },
   created() {
@@ -45,45 +42,28 @@ export default {
   methods: {
     getData() {
       this.formContent = this.fContent;
-      this.tempContent = JSON.parse(JSON.stringify(this.formContent));
+      // this.tempContent = JSON.parse(JSON.stringify(this.formContent));
       this.rules = this.fRules;
-      this.subURL = this.subUrl;
+      this.methodType = this.mType;
     },
     resetForm() {
-      this.formContent = JSON.parse(JSON.stringify(this.tempContent));
-      // for (let i = 0; i < this.formContent.length; i++) {
-      //   this.formContent[i].value = "";
-      // }
+      //调用父组件的重置函数进行提交
+      if (this.methodType == "add") {
+        this.$parent.$parent.fatherResetAddForm();
+      } else if (this.methodType == "edit") {
+        this.$parent.$parent.fatherResetEditForm();
+      }
     },
     submitForm() {
-      //将数据存入后台，若成功为true,失败为false
-      console.log(this.subURL);
-      var data = {};
-      var _this = this;
-      for (var i = 0; i < this.formContent.length; i++) {
-        data[this.formContent[i].prop] = this.formContent[i].value;
+      //console.log(this.$parent.$parent);
+      //调用父组件的提交函数进行提交
+      console.log(this.methodType);
+      if (this.methodType == "add") {
+        console.log(this.formContent);
+        this.$parent.$parent.fatherAddInfoSubmit(this.formContent);
+      } else if (this.methodType == "edit") {
+        this.$parent.$parent.fatherEditInfoSubmit(this.formContent);
       }
-      // console.log(data);
-      const config = {
-        method: "post",
-        url: this.subURL,
-        data: data
-      };
-
-      request(config)
-        .then(function(response) {
-          console.log(response);
-          //若成功，返回this.$emit("ifSub", true);，否则，返回this.$emit("ifSub", false);
-          if (response.data.code == "200") {
-            _this.$emit("ifSub", true);
-          } else {
-            _this.$emit("ifSub", false);
-          }
-        })
-        .catch(function(error) {
-          this.$emit("ifSub", false);
-          console.log(error);
-        });
     }
   }
 };

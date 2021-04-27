@@ -2,25 +2,36 @@
   <div>
     <div class="container">
       <div class="handle-box">
-        <el-button type="primary" icon="el-icon-plus" class="handle-del mr10" @click="addInfo">新增</el-button>
-        <el-button
-          type="primary"
-          icon="el-icon-delete"
-          class="handle-del mr10"
-          @click="delAllSelection"
-        >批量删除</el-button>
-        <el-input v-model="query.name" :placeholder="searchLabel" class="handle-input mr10"></el-input>
+        <span v-if="ifTwoButton">
+          <el-button type="primary" icon="el-icon-plus" class="handle-del mr10" @click="addInfo">新增</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-delete"
+            class="handle-del mr10"
+            @click="delAllSelection"
+          >批量删除</el-button>
+        </span>
+        <el-input v-model="searchText" :placeholder="searchLabel" class="handle-input mr10"></el-input>
         <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </div>
 
       <el-table
         class="table"
-        :data="tableData"
+        :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
         border
         width="100%"
         @selection-change="handleSelectionChange"
+        :row-key="rowKey"
+        ref="currtable"
       >
-        <el-table-column type="selection" width="55" align="center"></el-table-column>
+        <el-table-column
+          type="selection"
+          width="55"
+          align="center"
+          :reserve-selection="true"
+          v-if="ifTwoButton"
+        ></el-table-column>
+        <el-table-column type="index" width="50"></el-table-column>
         <el-table-column :key="col.prop" :label="col.label" :prop="col.prop" v-for="col in cols"></el-table-column>
         <el-table-column label="操作" prop="option">
           <template slot-scope="scope">
@@ -51,100 +62,62 @@
 
       <div class="pagination">
         <el-pagination
-          background
-          layout="total, prev, pager, next"
-          :current-page="query.pageIndex"
-          :page-size="query.pageSize"
-          :total="pageTotal"
-          @current-change="handlePageChange"
+          align="center"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5,10,15,20]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="tableData.length"
         ></el-pagination>
       </div>
-
-      <!-- 新建弹出框 -->
-      <el-dialog title="新增" :visible.sync="addVisible" width="30%" :before-close="handleClose">
-        <v-form
-          :fContent="formContent"
-          :fRules="formRules"
-          :subUrl="addURL"
-          v-on:ifSub="ifAddSubmit"
-        ></v-form>
-      </el-dialog>
-
-      <!-- 修改弹出框 -->
-      <el-dialog title="修改" :visible.sync="editVisible" width="30%" :before-close="handleClose">
-        <v-form
-          :fContent="formContent"
-          :fRules="formRules"
-          :subUrl="editURL"
-          v-on:ifSub="ifEditSubmit"
-        ></v-form>
-      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import vForm from "../components/CurrForm.vue";
 import http from "../utils/http";
 import request from "../utils/request";
-import Cookies from "js-cookie";
+
 export default {
   name: "CurrTable",
   props: [
     "tData",
     "tCols",
     "sLabel",
-    "fContent",
-    "fRules",
     "infoUrl",
-    "addUrl",
-    "editUrl",
-    "delUrl",
-    "delAllUrl",
-    "detailMesUrl",
     "ifShow",
     "ifEdit",
-    "ifDelete"
+    "ifDelete",
+    "rKey",
+    "ifTwoBtn"
   ],
   data() {
     return {
-      query: {
-        address: "",
-        name: "",
-        pageIndex: 1,
-        pageSize: 10
-      },
+      searchText: "",
+      currentPage: 1, // 当前页码
+      total: 20, // 总条数
+      pageSize: 5, // 每页的数据条数
+      pageTotal: 0,
+
       tableData: [],
       cols: [],
       id: "",
       multipleSelection: [],
       delList: [],
-      pageTotal: 0,
       idx: -1,
       id: -1,
       searchLabel: "",
-      addVisible: false,
-      editVisible: false,
-      idForAllDel: [],
-
-      formContent: [],
-      formRules: [],
-      tempContent: [],
 
       infoURL: "",
-      addURL: "",
-      editURL: "",
-      delURL: "",
-      delAllURL: "",
-      detailMesURL: "",
 
       ifShowMes: false,
       ifEditInfo: true,
-      ifDeleteInfo: true
+      ifDeleteInfo: true,
+
+      ifTwoButton: true
     };
-  },
-  components: {
-    vForm
   },
   created() {
     this.getData();
@@ -156,32 +129,47 @@ export default {
       this.cols = this.tCols;
       this.searchLabel = this.sLabel;
       this.pageTotal = this.tableData.length;
-
-      this.formContent = this.fContent;
-      this.formRules = this.fRules;
-      this.tempContent = JSON.parse(JSON.stringify(this.formContent));
+      //console.log(this.tableData);
 
       this.infoURL = this.infoUrl;
-      this.addURL = this.addUrl;
-      this.editURL = this.editUrl;
-      this.delURL = this.delUrl;
-      this.delAllURL = this.delAllUrl;
-      this.detailMesURL = this.detailMesUrl;
 
       this.ifShowMes = this.ifShow;
       this.ifEditInfo = this.ifEdit;
       this.ifDeleteInfo = this.ifDelete;
+
+      this.ifTwoButton = this.ifTwoBtn;
     },
     //使用axios更新数据，用于新建，更新，删除等操作后调用
     getDataByAxios() {
       var _this = this;
+      var temp = this.currentPage; //记录删除前所在的页数
+      console.log(this.infoURL)
       http
         .get(this.infoURL)
         .then(function(response) {
-          // console.log(response.data);
+          console.log(response);
+          console.log(response.data);
           //将tableData重新赋值
           _this.tableData = response.data;
           _this.pageTotal = _this.tableData.length;
+          //暂时这样写
+          for (var i = 0; i < _this.tableData.length; i++) {
+            //判断对象中是否存在status这一项，未测试
+            if (_this.tableData[i].hasOwnProperty("status")) {
+              if (_this.tableData[i]["status"] == false) {
+                _this.tableData[i]["status"] = "正常";
+              } else {
+                _this.tableData[i]["status"] = "停用";
+              }
+            }
+          }
+          //若触发删除，可能需操控currentPage
+          //例如第二页只有1条数据时，删掉该条数据，需要退回第一页
+          //删除后，若当页还存在，留在当页，否则跳到删除后的最后一页
+          var x = Math.ceil(_this.pageTotal / _this.pageSize); //删除后数据的页数
+          if (x < temp) {
+            _this.currentPage = x;
+          }
         })
         .catch(function(error) {
           console.log(error);
@@ -189,82 +177,17 @@ export default {
     },
     //触发新建弹窗
     addInfo() {
-      this.addVisible = true;
-    },
-    //新增提交
-    ifAddSubmit(val) {
-      //console.log(val);
-      //若提交成功，重新向后台请求数据，更新页面
-      if (val == true) {
-        this.getDataByAxios();
-        this.handleClose()
-        // this.addVisible = false;
-        this.$message.success("新增成功");
-      } else {
-        this.$message.error("新增失败");
-      }
+      this.$parent.fatherAddInfo();
     },
     //触发修改弹窗
     editInfo(row) {
-      this.editVisible = true;
-
-      for (var i = 0; i < this.formContent.length; i++) {
-        var name = this.formContent[i].prop;
-        this.formContent[i].value = row[name];
-      }
-    },
-    //修改提交
-    ifEditSubmit(val) {
-      //若提交成功，重新向后台请求数据，更新页面
-      console.log(" ifEditSubmit(val)");
-      if (val == true) {
-        this.getDataByAxios();
-        this.handleClose()
-        // this.editVisible = false;
-        // this.formContent = JSON.parse(JSON.stringify(this.tempContent));
-        this.$message.success("修改成功");
-      } else {
-        this.$message.error("修改失败");
-      }
-    },
-    //关闭新增和修改弹窗
-    handleClose() {
-      for (var i = 0; i < this.formContent.length; i++) {
-        this.formContent[i].value = this.tempContent[i].value;
-      }
-      
-      this.editVisible = false;
-      this.addVisible = false;
+      this.$parent.fatherEditInfo(row);
     },
     //触发删除
     deleteInfo(row) {
-      // 二次确认删除
-      var _this = this;
-
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      })
-        .then(() => {
-          //console.log(row);
-
-          const config = {
-            method: "post",
-            url: this.delURL,
-            data: row
-          };
-
-          request(config)
-            .then(function(response) {
-              //console.log(response);
-              _this.$message.success("删除成功");
-              _this.getDataByAxios();
-            })
-            .catch(function(error) {
-              _this.$message.error("删除失败");
-              console.log(error);
-            });
-        })
-        .catch(() => {});
+      var temp = [];
+      temp[0] = row;
+      this.$parent.fatherDeleteInfo(temp);
     },
     // 触发搜索按钮
     handleSearch() {
@@ -274,60 +197,46 @@ export default {
     // 多选操作
     handleSelectionChange(val) {
       this.multipleSelection = val;
-
-      console.log(val);
+      //console.log(val);
     },
     //批量删除
     delAllSelection() {
-      // 二次确认删除
-      var _this = this;
-
-      this.$confirm("确定要删除吗？", "提示", {
-        type: "warning"
-      })
-        .then(() => {
-          var id = this.cols[0].prop;
-          for (let i = 0; i < this.multipleSelection.length; i++) {
-            this.idForAllDel[i] = this.multipleSelection[i][id];
-          }
-          console.log(this.idForAllDel);
-
-          const config = {
-            method: "post",
-            url: this.delAllURL,
-            data: this.idForAllDel
-          };
-
-          request(config)
-            .then(function(response) {
-              //console.log(response);
-              _this.$message.success("删除成功");
-              _this.multipleSelection = [];
-              _this.getDataByAxios();
-            })
-            .catch(function(error) {
-              _this.$message.error("删除失败");
-              console.log(error);
-            });
-        })
-        .catch(() => {});
+      this.$parent.fatherDeleteInfo(this.multipleSelection);
     },
     //查看信息
     showMes(row) {
-      //路由跳转，将row传递到查看信息界面
-      Cookies.set(this.detailMesURL, row, {
-        expires: 30
-      });
-      //alert(this.detailMesURL);
-      //console.log(row);
-      this.$router.push({
-        path: this.detailMesURL
-      });
+      this.$parent.fatherShowMes(row);
     },
     // 分页导航
-    handlePageChange(val) {
-      this.$set(this.query, "pageIndex", val);
-      this.getData();
+    handleSizeChange(val) {
+      //console.log(`每页 ${val} 条`);
+      this.currentPage = 1;
+      this.pageSize = val;
+    },
+    handleCurrentChange(val) {
+      //console.log(`当前页: ${val}`);
+      this.currentPage = val;
+    },
+    rowKey(row) {
+      var id = this.rKey;
+      return row[id];
+    }
+  },
+  watch: {
+    ifDictSuccess() {
+      this.getDataByAxios();
+      this.$refs.currtable.clearSelection();
+    }
+  },
+  computed: {
+    ifDictSuccess: {
+      //通过监听全局变量的改变，来判断是否需要重新请求后台数据，更新表格
+      get() {
+        return this.$store.state.ifDictSuccess;
+      },
+      set(v) {
+        this.$store.state.ifDictSuccess = false;
+      }
     }
   }
 };
