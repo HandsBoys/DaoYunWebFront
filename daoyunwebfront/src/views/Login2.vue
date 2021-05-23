@@ -83,7 +83,7 @@
           </div>
         </el-form-item>
       </div>
-      <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">{{RememberLabel}}</el-checkbox>
+      <el-checkbox v-model="loginForm.autoLogin" style="margin:0px 0px 25px 0px;">自动登录</el-checkbox>
       <el-link @click="changeMode()" class="lMode">{{ModeLabel}}</el-link>
       <el-form-item style="width:100%;">
         <el-button
@@ -98,7 +98,7 @@
         </el-button>
       </el-form-item>
       <el-link class="forPassLink" @click="toForPass()">忘记密码</el-link>
-      <el-link class="registerLink" @click="toRegister()">注册</el-link>
+      <!-- <el-link class="registerLink" @click="toRegister()">注册</el-link> -->
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
@@ -113,34 +113,73 @@ import dragVerify from "vue-drag-verify";
 import { loginApi, login2Api, getCodeImgApi, getMessCodeApi } from "@/api/api";
 import { encrypt, decrypt } from "@/utils/jsencrypt";
 import Cookies from "js-cookie";
-import { setToken } from "@/utils/auth";
+import { setToken, getToken } from "@/utils/auth";
 export default {
   name: "Login2",
   components: {
     dragVerify
   },
   data() {
+    // 此处自定义校验手机号码js逻辑
+    var phoneReg = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+    var passReg = /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/;
+    var validatePhone = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("账号不能为空"));
+      }
+      setTimeout(() => {
+        if (!phoneReg.test(value)) {
+          callback(new Error("账号格式不正确，请重新输入"));
+        } else {
+          callback();
+        }
+      }, 1000);
+    };
+    var validatePassWord = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("密码不能为空"));
+      }
+      setTimeout(() => {
+        if (!passReg.test(value)) {
+          callback(new Error("密码格式不正确，请重新输入"));
+        } else {
+          callback();
+        }
+      }, 1000);
+    };
+    var validateCode = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("验证码不能为空"));
+      }
+      setTimeout(() => {
+        if (value.length < 5) {
+          callback(new Error("验证码格式不正确，请重新输入"));
+        } else {
+          callback();
+        }
+      }, 1000);
+    };
+
     return {
       codeUrl: "",
       cookiePassword: "",
       loginMode: "1",
       ModeLabel: "短信登录",
-      RememberLabel: "记住密码",
       loginForm: {
         username: "",
         password: "",
-        rememberMe: false,
+        autoLogin: false,
         code: "",
         uuid: ""
       },
       loginRules: {
         username: [
-          { required: true, trigger: "blur", message: "用户名不能为空" }
+          { required: true, validator: validatePhone, trigger: "blur" }
         ],
         password: [
-          { required: true, trigger: "blur", message: "密码不能为空" }
+          { required: true, validator: validatePassWord, trigger: "blur" }
         ],
-        code: [{ required: true, trigger: "change", message: "验证码不能为空" }]
+        code: [{ required: true, validator: validateCode, trigger: "blur" }]
       },
       loading: false,
       redirect: undefined,
@@ -176,18 +215,16 @@ export default {
   },
   created() {
     this.getCode();
-    this.getCookie();
+    this.automaticLogin();
   },
   methods: {
     changeMode() {
       if (this.loginMode == "1") {
         this.loginMode = "2";
         this.ModeLabel = "密码登录";
-        this.RememberLabel = "记住手机号";
       } else if (this.loginMode == "2") {
         this.loginMode = "1";
         this.ModeLabel = "短信登录";
-        this.RememberLabel = "记住密码";
       }
     },
     // 滑动完成消失
@@ -204,117 +241,43 @@ export default {
       this.$router.push({ path: "ForgetPassword2" });
     },
     handleLogin() {
-      var testEmail = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
-      var testPhone = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-      var testPassword = /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/; /*密码强度正则，最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符 */
       const _this = this;
-
       this.$refs.loginForm.validate(valid => {
         if (valid) {
+          this.loading = true;
           if (this.loginMode == "1") {
-            if (
-              !testEmail.test(this.loginForm.username) &&
-              !testPhone.test(this.loginForm.username)
-            ) {
-              this.$message.error("账号格式不正确，请重新输入");
-            } else if (!testPassword.test(this.loginForm.password)) {
-              this.$message.error("密码格式不正确，请重新输入");
-            } else if (this.loginForm.code.length < 5) {
-              //demo
-              this.$message.error("验证码格式不正确，请重新输入");
-            } else {
-              this.loading = true;
-              //加密密码
-              var encryptPass = encrypt(this.loginForm.password);
-              //连接后台判断账号密码，正确登入且设置token，错误提示
-              loginApi(
-                this.loginForm.password,
-                this.loginForm.username,
-                this.loginForm.code
-              )
-                .then(function(response) {
-                  console.log(response);
-                  if (response.data.code == "200") {
-                    //设置token
-                    setToken(response.data.data.token);
-
-                    //将用户名存入sessionStorage
-                    sessionStorage.setItem(
-                      "username",
-                      _this.loginForm.username
-                    );
-
-                    //若点了记住密码，存储cookie
-                    if (_this.loginForm.rememberMe) {
-                      Cookies.set("username", _this.loginForm.username, {
-                        expires: 30
-                      });
-                      Cookies.set("password", encryptPass, {
-                        expires: 30
-                      });
-                      Cookies.set("rememberMe", _this.loginForm.rememberMe, {
-                        expires: 30
-                      });
-                    } else {
-                      Cookies.remove("username");
-                      Cookies.remove("password");
-                      Cookies.remove("rememberMe");
-                    }
-
-                    //参数管理
-                    //设置侧边栏颜色  后期改为从数据库读取
-                    //为了参数管理新增的设置   从数据库中读出参数数据，使用$store赋值
-
-                    _this.$router.push({
-                      path: "Welcome"
-                    });
-                  } else {
-                    //_this.$message.error("用户名或密码错误");
-                    _this.$message.error(response.data.msg);
-                    _this.loading = false;
-                    _this.getCode();
-                  }
-                })
-                .catch(function(error) {
-                  _this.loading = false;
-                  _this.getCode();
-                  console.log(error);
-                });
-            }
-          } else if (this.loginMode == "2") {
-            this.loading = true;
-            login2Api(this.loginForm.code, this.loginForm.username)
+            //连接后台判断账号密码，正确登入且设置token，错误提示
+            loginApi(
+              this.loginForm.password,
+              this.loginForm.username,
+              this.loginForm.code
+            )
               .then(function(response) {
                 console.log(response);
-                if (response.data.code == "200") {
-                  //设置token
-                  setToken(response.data.data.token);
-                  //将用户名存入sessionStorage
-                  sessionStorage.setItem("username", _this.loginForm.username);
-
-                  //若点了记住手机号，存储cookie
-                  if (_this.loginForm.rememberMe) {
-                    Cookies.set("username", _this.loginForm.username, {
-                      expires: 30
-                    });
-                    Cookies.set("rememberMe", _this.loginForm.rememberMe, {
-                      expires: 30
-                    });
-                  } else {
-                    Cookies.remove("username");
-                    Cookies.remove("rememberMe");
-                  }
-
-                  //参数管理
-                  //设置侧边栏颜色  后期改为从数据库读取
-                  //为了参数管理新增的设置   从数据库中读出参数数据，使用$store赋值
-
-                  _this.$router.push({
-                    path: "Welcome"
-                  });
-                } else {
-                  _this.$message.error("验证码错误");
+                if (response.data.code != "200") {
+                  _this.$message.error(response.data.msg);
                   _this.loading = false;
+                  _this.getCode();
+                } else {
+                  var token = response.data.data.token;
+                  _this.somethingForLogin(token, _this.loginForm.username);
+                }
+              })
+              .catch(function(error) {
+                _this.loading = false;
+                _this.getCode();
+                console.log(error);
+              });
+          } else if (this.loginMode == "2") {
+            login2Api(this.loginForm.code, this.loginForm.username)
+              .then(function(response) {
+                //console.log(response);
+                if (response.data.code != "200") {
+                  _this.$message.error(response.data.msg);
+                  _this.loading = false;
+                } else {
+                  var token = response.data.data.token;
+                  _this.somethingForLogin(token, _this.loginForm.username);
                 }
               })
               .catch(function(error) {
@@ -347,17 +310,6 @@ export default {
         })
         .catch(function(err) {});
     },
-    getCookie() {
-      const username = Cookies.get("username");
-      const password = Cookies.get("password");
-      const rememberMe = Cookies.get("rememberMe");
-      this.loginForm = {
-        username: username === undefined ? this.loginForm.username : username,
-        password:
-          password === undefined ? this.loginForm.password : decrypt(password),
-        rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
-      };
-    },
     getMessCode() {
       //发送短信前先校验手机号是否合法
       var testPhone = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
@@ -367,7 +319,6 @@ export default {
       } else if (!testPhone.test(this.loginForm.username)) {
         this.$message.error("手机号格式错误，请重新输入");
       } else {
-        //console.log(this.loginForm.username);
         getMessCodeApi(this.loginForm.username)
           .then(function(response) {
             if (response.data.code == "200") {
@@ -375,7 +326,7 @@ export default {
             } else {
               _this.$message.error("短信发送失败");
             }
-            console.log(response);
+            //console.log(response);
           })
           .catch(function(error) {
             console.log(error);
@@ -401,6 +352,36 @@ export default {
           this.updateDrag = true;
         });
       }
+    },
+    automaticLogin() {
+      //从localStorage中获得token
+      var token = localStorage.getItem("token");
+      //判断token是否为空
+      if (token != null) {
+        this.$router.push({
+          path: "Welcome"
+        });
+      }
+    },
+    somethingForLogin(token, username) {
+      this.$message.success("登录成功");
+      //设置token
+      setToken(token);
+      //将用户名存入localStorage
+      localStorage.setItem("username", username);
+      //若勾选了自动登录
+      if (this.loginForm.autoLogin == true) {
+        //将token存入localStorage 用于自动登录
+        localStorage.setItem("token", token);
+      }
+
+      //参数管理
+      //设置侧边栏颜色  后期改为从数据库读取
+      //为了参数管理新增的设置   从数据库中读出参数数据，使用$store赋值
+
+      this.$router.push({
+        path: "Welcome"
+      });
     }
   }
 };

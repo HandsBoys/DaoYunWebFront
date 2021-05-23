@@ -5,7 +5,7 @@ export function loginApi(password, userName, code) {
     return http.postLogin(`/login`, password, userName, code)
 }
 export function login2Api(code, phone) {
-    return http.postLogin2(`/login2`, code, phone)
+    return http.postLogin2(`/login/sms`, code, phone)
 }
 
 //注册接口
@@ -17,10 +17,27 @@ export function registerApi(password, phone, code, userName) {
 export function getSideBarApi(userId) {
     return http.get(`/system/menu`, userId)
 }
-
+//用户管理
 //获取用户信息列表
 export function getUserInfoListApi() {
-    return http.get(`/system/user/list`)
+    return http.get(`/system/user`)
+}
+//新增用户信息
+export function addUserInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/dicttype`, data)
+}
+
+//修改用户信息
+export function editUserInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/dicttype`, data)
+}
+
+//删除用户信息
+export function deleteUserInfoApi(UserId) {
+    //console.log(data)
+    return http.delete(`/system/dicttype/` + UserId)
 }
 //字典类型
 //获取字典类型信息列表
@@ -80,10 +97,35 @@ export function getCodeImgApi() {
 }
 //获取短信验证码
 export function getMessCodeApi(phone) {
-    return http.get(`/message?phone=`+ phone)
+    return http.getMessCode(`/message?phone=`+ phone)
 }
-// export function loginApi() {
-//     console.log("loginApi");
-//     return http.get(`/hello`)
-// }
+
+//获取角色信息列表
+export function getRoleInfoListApi() {
+    return http.get(`/system/role`)
+}
+
+//新增角色信息
+export function addRoleInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/role`, data)
+}
+
+//修改角色信息
+export function editRoleInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/role`, data)
+}
+
+//删除角色信息
+export function deleteRoleInfoApi(roleId) {
+    //console.log(data)
+    return http.delete(`/system/role/` + roleId)
+}
+
+//获取所有菜单列表，用于角色的新增和修改分配权限
+export function getAllMenuForRoleApi() {
+    return http.get(`/system/menu/listall`)
+}
+
 

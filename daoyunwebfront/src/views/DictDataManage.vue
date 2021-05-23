@@ -64,7 +64,7 @@ import {
   editDictDataInfoApi,
   deleteDictDataInfoApi
 } from "@/api/api";
-import { routerToLogin } from "@/utils/routerGuard";
+// import { routerToLogin } from "@/utils/routerGuard";
 
 import Cookies from "js-cookie";
 
@@ -116,12 +116,12 @@ export default {
   created() {
     this.initPage();
     this.initForm();
-    var bo = routerToLogin();
-    if (bo) {
-      this.$router.push({
-        path: "Login2"
-      });
-    }
+    // var bo = routerToLogin();
+    // if (bo) {
+    //   this.$router.push({
+    //     path: "Login2"
+    //   });
+    // }
   },
   methods: {
     getDictDataInfo(dT) {
@@ -198,11 +198,12 @@ export default {
       this.title = "修改";
       this.diaLogMode = "edit";
 
+      var tempStatus = 0;
       //暂时这样写
       if (row["status"] == "正常") {
-        row["status"] = 0;
+        tempStatus = 0;
       } else {
-        row["status"] = 1;
+        tempStatus = 1;
       }
 
       this.form = {
@@ -211,7 +212,7 @@ export default {
         dictType: row["dictType"],
         dictLabel: row["dictLabel"],
         dictValue: row["dictValue"],
-        status: row["status"],
+        status: tempStatus,
         remark: row["remark"]
       };
     },
@@ -257,11 +258,18 @@ export default {
     },
     //重置修改表单
     fatherResetEditForm() {
+      var tempStatus = 0;
+      if (this.editRow["status"] == "正常") {
+        tempStatus = 0;
+      } else {
+        tempStatus = 1;
+      }
+
       this.form = {
         dictType: this.editRow["dictType"],
         dictLabel: this.editRow["dictLabel"],
         dictValue: this.editRow["dictValue"],
-        status: this.editRow["status"],
+        status: tempStatus,
         remark: this.editRow["remark"]
       };
     },
@@ -349,6 +357,7 @@ export default {
       var dictType = {};
 
       row = JSON.parse(temp);
+      console.log(row);
       dictType["dictType"] = row.dictType;
       this.infoUrl = "/system/dictdata?dictType=" + row.dictType;
       this.getDictDataInfo(dictType);
@@ -358,12 +367,12 @@ export default {
     this.initPage();
     this.initForm();
 
-    var bo = routerToLogin();
-    if (bo) {
-      this.$router.push({
-        path: "Login2"
-      });
-    }
+    // var bo = routerToLogin();
+    // if (bo) {
+    //   this.$router.push({
+    //     path: "Login2"
+    //   });
+    // }
 
     //console.log("----------activated--------");
   }

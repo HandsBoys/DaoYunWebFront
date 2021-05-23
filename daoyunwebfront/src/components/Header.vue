@@ -49,7 +49,7 @@ export default {
   computed: {
     username() {
       //获取sessionStorage中的用户名
-      let username = sessionStorage.getItem('username');
+      let username = localStorage.getItem('username');
       return username ? username : this.name;
     }
   },
@@ -58,6 +58,7 @@ export default {
     handleCommand(command) {
       if (command == "loginout") {
         removeToken();
+        localStorage.removeItem("token")
         this.$router.push("/Login2");
       }
     },

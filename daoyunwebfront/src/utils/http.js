@@ -2,6 +2,7 @@
 // 导入封装好的axios实例
 import request from './request'
 
+
 const http = {
     /**
      * methods: 请求
@@ -11,25 +12,7 @@ const http = {
     get(url, params) {
         const config = {
             method: 'get',
-            url: url,
-        }
-        if (params) config.params = params
-        return request(config)
-    },
-    // get(url,params){
-    //     const config = {
-    //         method: 'get',
-    //         url:url
-    //     }
-    //     if(params) config.params = params
-    //     return request(config)
-    // },
-    //获取验证码图片
-    getCodeImg(url, params) {
-        const config = {
-            method: 'get',
-            url: url,
-            responseType: 'arraybuffer' // 最为关键
+            url: url
         }
         if (params) config.params = params
         return request(config)
@@ -40,10 +23,45 @@ const http = {
             url: url,
             data: params
         }
-        // let data = "username=13010101010&password=Aa%40123"
-        //console.log("http.js post params=" + params);
-        //if(params) config.data = params;
-        //console.log("http.js post config.data=" + config.data);
+        return request(config)
+    },
+    put(url, params) {
+        //console.log(params)
+        //console.log(url)
+        const config = {
+            method: 'put',
+            url: url,
+            data: params
+        }
+        // if(params) config.params = params
+        return request(config)
+    },
+    delete(url) {
+        const config = {
+            method: 'delete',
+            url: url
+        }
+        //if(params) config.params = params
+        return request(config)
+    },
+    //获取验证码图片
+    getCodeImg(url, params) {
+        //console.log(url)
+        const config = {
+            method: 'post',
+            url: url,
+            responseType: 'arraybuffer' // 最为关键
+        }
+        if (params) config.params = params
+        return request(config)
+    },
+    //获取短信验证码
+    getMessCode(url, params) {
+        const config = {
+            method: 'post',
+            url: url,
+        }
+        if (params) config.params = params
         return request(config)
     },
     //登录
@@ -90,25 +108,6 @@ const http = {
         }
         return request(config)
     },
-    put(url, params) {
-        //console.log(params)
-        //console.log(url)
-        const config = {
-            method: 'put',
-            url: url,
-            data: params
-        }
-        // if(params) config.params = params
-        return request(config)
-    },
-    delete(url) {
-        const config = {
-            method: 'delete',
-            url: url
-        }
-        //if(params) config.params = params
-        return request(config)
-    }
 }
 //导出
 export default http

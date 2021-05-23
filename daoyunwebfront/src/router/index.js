@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { getToken } from '@/utils/auth'
 
 Vue.use(Router)
 
@@ -76,6 +75,16 @@ const router = new Router({
           meta: { title: '参数管理' }
         },
         {
+          path: '/RoleManage',
+          component: () => import('../views/RoleManage.vue'),
+          meta: { title: '角色管理' }
+        },
+        {
+          path: '/MenuManage',
+          component: () => import('../views/MenuManage.vue'),
+          meta: { title: '菜单管理' }
+        },
+        {
           path: '/form',
           component: () => import('../views/UseForm.vue'),
           meta: { title: '使用编辑样例' }
@@ -104,19 +113,6 @@ const router = new Router({
     },
   ]
 })
-
-//挂载路由导航守卫
-// router.beforeEach((to, from, next) => {
-//   if (to.path === '/') {
-//     const tokenStr = getToken();
-//     console.log("router")
-//     if(tokenStr=="") {
-//       return next('/Login2')
-//     }else {
-//       return next('/Welcome');
-//     }
-//   } 
-// })
 
 
 export default router

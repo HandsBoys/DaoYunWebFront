@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import bus from "../api/bus";
-import { routerToLogin } from "@/utils/routerGuard";
+// import bus from "../api/bus";
+// import { routerToLogin } from "@/utils/routerGuard";
 export default {
   name: "Welcome",
   created() {

@@ -11,10 +11,11 @@ import axios from 'axios';
 import './assets/css/main.css';
 import Vuex from 'vuex'
 import store from './store/store'
+import {parseTime} from "@/utils/handleTime";
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios;
-
+Vue.prototype.parseTime = parseTime;
 
 Vue.use(ElementUI, {
   size: 'small'

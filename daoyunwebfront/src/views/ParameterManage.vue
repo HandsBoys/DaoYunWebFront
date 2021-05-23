@@ -46,7 +46,7 @@
 <script>
 import vTable from "../components/CurrTable.vue";
 import { getConfigInfoListApi } from "@/api/api";
-import { routerToLogin } from "@/utils/routerGuard";
+// import { routerToLogin } from "@/utils/routerGuard";
 export default {
   name: "ParameterManage",
   components: {
@@ -54,12 +54,12 @@ export default {
   },
   created() {
     this.getConfigInfo();
-    var bo = routerToLogin();
-    if (bo) {
-      this.$router.push({
-        path: "Login2"
-      });
-    }
+    // var bo = routerToLogin();
+    // if (bo) {
+    //   this.$router.push({
+    //     path: "Login2"
+    //   });
+    // }
   },
   data() {
     return {

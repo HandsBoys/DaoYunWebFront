@@ -211,9 +211,9 @@ export default {
       var userId = 2;
       getSideBarApi(userId)
         .then(function(response) {
-          _this.items = response.data.data;
-          console.log(response);
-          console.log(_this.items);
+          _this.items = response.data;
+           console.log(response);
+          // console.log(_this.items);
         })
         .catch(function(error) {
           console.log(error);

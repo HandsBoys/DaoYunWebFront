@@ -1,9 +1,10 @@
 // 导入axios
 import axios from 'axios'
+import router from '../router'
 // 使用element-ui Message做消息提醒
 import { Message } from 'element-ui';
 
-import { getToken } from '@/utils/auth'
+import { getToken, removeToken } from '@/utils/auth'
 //1. 创建新的axios实例，
 const service = axios.create({
     // 公共接口--这里注意后面会讲
@@ -21,8 +22,17 @@ service.interceptors.request.use(config => {
     config.headers = {
         'Content-Type': 'application/json;charset=UTF-8' //配置请求头
     }
+    let token = localStorage.getItem('token');
+    // console.log(token)
+    if(token==null) {
+        token = getToken();
+        // console.log(token)
+    }
+    if (token) {
+        config.headers['Authorization'] = "Bearer " + token // 让每个请求携带自定义token 
+    }
     //注意使用token的时候需要引入cookie方法或者用本地localStorage等方法，推荐js-cookie
-    config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 
+
     return config
 }, error => {
     Promise.reject(error)
@@ -43,7 +53,12 @@ service.interceptors.response.use(response => {
                 error.message = '错误请求'
                 break;
             case 401:
-                error.message = '未授权，请重新登录'
+                error.message = '认证失败，无法访问系统资源，请重新登录'
+                localStorage.removeItem('token');
+                removeToken()
+                router.replace({
+                    path: '/login2' // 到登录页重新获取token
+                })
                 break;
             case 403:
                 error.message = '拒绝访问'
@@ -59,7 +74,13 @@ service.interceptors.response.use(response => {
                 error.message = '请求超时'
                 break;
             case 500:
-                error.message = '服务器端出错'
+                // error.message = '服务器端出错'
+                error.message = '认证失败，无法访问系统资源，请重新登录'
+                localStorage.removeItem('token');
+                removeToken()
+                router.replace({
+                    path: '/login2' // 到登录页重新获取token
+                })
                 break;
             case 501:
                 error.message = '网络未实现'
