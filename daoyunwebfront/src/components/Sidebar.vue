@@ -18,25 +18,34 @@
         <template v-if="ifHaveChildren(item)">
           <el-submenu :index="item.path + '' " :key="item.path">
             <template slot="title">
-              <i :class="item.icon"></i>
+              <svg-icon :icon-class="item.icon"/>
+              <!-- <i :class="item.icon"></i> -->
               <span slot="title">{{ item.menuName }}</span>
             </template>
             <template v-for="subItem in item.children">
               <el-submenu v-if="ifHaveChildren(subItem)" :index="subItem.path" :key="subItem.path">
-                <template slot="title">{{ subItem.menuName }}</template>
+                <template slot="title">
+                  <svg-icon :icon-class="subItem.icon"/>
+                  <span slot="title">{{ subItem.menuName }}</span>
+                </template>
                 <el-menu-item
                   v-for="(threeItem,i) in subItem.children"
                   :key="i"
                   :index="threeItem.path"
                 >{{ threeItem.menuName }}</el-menu-item>
               </el-submenu>
-              <el-menu-item v-else :index="subItem.path" :key="subItem.path">{{ subItem.menuName }}</el-menu-item>
+              <el-menu-item v-else :index="subItem.path" :key="subItem.path">
+                <template slot="title">
+                  <svg-icon :icon-class="subItem.icon"/>
+                  <span slot="title">{{ subItem.menuName }}</span>
+                </template>
+              </el-menu-item>
             </template>
           </el-submenu>
         </template>
         <template v-else>
           <el-menu-item :index="item.path" :key="item.path">
-            <i :class="item.icon"></i>
+            <svg-icon :icon-class="item.icon"/>
             <span slot="title">{{ item.menuName }}</span>
           </el-menu-item>
         </template>
@@ -180,8 +189,7 @@ export default {
       ],
       item2s: [],
       // 当前激活的路径（第二级菜单栏）
-      activepath: "",
-      
+      activepath: ""
     };
   },
   computed: {
@@ -197,7 +205,6 @@ export default {
 
     //获取侧边栏各种颜色
 
-
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
     bus.$on("collapse", msg => {
       this.collapse = msg;
@@ -212,7 +219,7 @@ export default {
       getSideBarApi(userId)
         .then(function(response) {
           _this.items = response.data;
-           console.log(response);
+          console.log(response);
           // console.log(_this.items);
         })
         .catch(function(error) {
