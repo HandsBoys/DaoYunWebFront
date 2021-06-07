@@ -8,7 +8,7 @@
         :key="index"
       >
         <router-link :to="item.path" class="tags-li-title">{{item.title}}</router-link>
-        <span class="tags-li-icon" @click="closeTags(index)">
+        <span class="tags-li-icon" @click="closeTags(index)" v-if="dontDelWel(item)">
           <i class="el-icon-close"></i>
         </span>
       </li>
@@ -33,7 +33,8 @@ import bus from "../api/bus";
 export default {
   data() {
     return {
-      tagsList: []
+      tagsList: [],
+      welcomePage: { name: "Welcome", path: "/Welcome", title: "系统首页" }
     };
   },
   methods: {
@@ -49,20 +50,25 @@ export default {
       if (item) {
         delItem.path === this.$route.fullPath && this.$router.push(item.path);
       } else {
-        this.$router.push("/");
+        this.$router.push("/Welcome");
       }
     },
     // 关闭全部标签
     closeAll() {
       this.tagsList = [];
-      this.$router.push("/");
+      this.tagsList.push(this.welcomePage);
+      this.$router.push("/Welcome");
     },
     // 关闭其他标签
     closeOther() {
       const curItem = this.tagsList.filter(item => {
         return item.path === this.$route.fullPath;
       });
-      this.tagsList = curItem;
+      //console.log(curItem);
+      //this.tagsList = curItem;
+      this.tagsList = [];
+      this.tagsList.push(this.welcomePage);
+      this.tagsList.push(curItem[0]);
     },
     // 设置标签
     setTags(route) {
@@ -83,6 +89,13 @@ export default {
     },
     handleTags(command) {
       command === "other" ? this.closeOther() : this.closeAll();
+    },
+    dontDelWel(item) {
+      //console.log(item);
+      if(item.name=="Welcome") {
+        return false;
+      }
+      return true;
     }
   },
   computed: {
@@ -97,6 +110,7 @@ export default {
   },
   created() {
     this.setTags(this.$route);
+    console.log(this.tagsList);
     // 监听关闭当前页面的标签页
     bus.$on("close_current_tags", () => {
       for (let i = 0, len = this.tagsList.length; i < len; i++) {
@@ -107,7 +121,7 @@ export default {
           } else if (i > 0) {
             this.$router.push(this.tagsList[i - 1].path);
           } else {
-            this.$router.push("/");
+            this.$router.push("/Welcome");
           }
           this.tagsList.splice(i, 1);
           break;

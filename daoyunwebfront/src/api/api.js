@@ -90,6 +90,21 @@ export function deleteDictDataInfoApi(DictCode) {
 export function getConfigInfoListApi() {
     return http.get(`/system/config`)
 }
+//新增参数信息
+export function addConfigInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/config`, data)
+}
+//修改参数信息
+export function editConfigInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/config`, data)
+}
+//删除角色信息
+export function deletetConfigInfoApi(ConfigId) {
+    //console.log(data)
+    return http.delete(`/system/config/` + ConfigId)
+}
 
 //获得验证码图片
 export function getCodeImgApi() {

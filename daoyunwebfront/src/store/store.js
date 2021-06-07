@@ -10,6 +10,7 @@ export default new Vuex.Store({
         backgroundColor: "#324157",
 
         ifDictSuccess: false,
+        reloadSidebar: false,
         updatePage: false
     },
 

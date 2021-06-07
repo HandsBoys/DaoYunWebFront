@@ -23,7 +23,7 @@
       >
         <el-form ref="form" :model="form" :rules="rules" label-width="80px" v-if="reFresh">
           <el-form-item label="字典名称" prop="dictName">
-            <el-input v-model="form.dictName" placeholder="请输入字典名称" />
+            <el-input v-model="form.dictName" placeholder="请输入字典名称"/>
           </el-form-item>
           <el-form-item label="字典类型" prop="dictType">
             <el-input v-model="form.dictType" placeholder="请输入字典类型" :disabled="ifInputDictType"/>
@@ -79,12 +79,6 @@ export default {
   created() {
     this.getDictInfo();
     this.initForm();
-    // var bo = routerToLogin();
-    // if (bo) {
-    //   this.$router.push({
-    //     path: "Login2"
-    //   });
-    // }
   },
   data() {
     return {
@@ -167,29 +161,33 @@ export default {
     fatherAddInfoSubmit(formData) {
       var _this = this;
 
-      addDictInfoApi(formData)
-        .then(function(response) {
-           console.log(response);
-          if (response.data.code == "200") {
-            _this.$message.success("新增成功");
-            _this.handleClose();
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          addDictInfoApi(formData)
+            .then(function(response) {
+              console.log(response);
+              if (response.data.code == "200") {
+                _this.$message.success("新增成功");
+                _this.handleClose();
 
-            //通过全局变量刷新表格数据
-            var bo = _this.$store.state.ifDictSuccess;
-            if (bo == true) {
-              bo = false;
-            } else {
-              bo = true;
-            }
-            _this.$store.state.ifDictSuccess = bo;
-          } else {
-            _this.$message.error("新增失败");
-          }
-        })
-        .catch(function(error) {
-          _this.$message.error("新增失败");
-          console.log(error);
-        });
+                //通过全局变量刷新表格数据
+                var bo = _this.$store.state.ifDictSuccess;
+                if (bo == true) {
+                  bo = false;
+                } else {
+                  bo = true;
+                }
+                _this.$store.state.ifDictSuccess = bo;
+              } else {
+                _this.$message.error("新增失败");
+              }
+            })
+            .catch(function(error) {
+              _this.$message.error("新增失败");
+              console.log(error);
+            });
+        }
+      });
     },
     //点击修改按钮，弹出修改弹窗
     fatherEditInfo(row) {
@@ -219,29 +217,33 @@ export default {
     //将修改的数据传入后台，完成修改
     fatherEditInfoSubmit(formData) {
       var _this = this;
-      editDictInfoApi(formData)
-        .then(function(response) {
-          //console.log(response);
-          if (response.data.code == "200") {
-            _this.$message.success("修改成功");
-            _this.handleClose();
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          editDictInfoApi(formData)
+            .then(function(response) {
+              //console.log(response);
+              if (response.data.code == "200") {
+                _this.$message.success("修改成功");
+                _this.handleClose();
 
-            //通过全局变量刷新表格数据
-            var bo = _this.$store.state.ifDictSuccess;
-            if (bo == true) {
-              bo = false;
-            } else {
-              bo = true;
-            }
-            _this.$store.state.ifDictSuccess = bo;
-          } else {
-            _this.$message.error("修改失败");
-          }
-        })
-        .catch(function(error) {
-          _this.$message.error("修改失败");
-          console.log(error);
-        });
+                //通过全局变量刷新表格数据
+                var bo = _this.$store.state.ifDictSuccess;
+                if (bo == true) {
+                  bo = false;
+                } else {
+                  bo = true;
+                }
+                _this.$store.state.ifDictSuccess = bo;
+              } else {
+                _this.$message.error("修改失败");
+              }
+            })
+            .catch(function(error) {
+              _this.$message.error("修改失败");
+              console.log(error);
+            });
+        }
+      });
     },
     //重置新增表单
     fatherResetAddForm() {

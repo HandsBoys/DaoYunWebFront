@@ -284,29 +284,33 @@ export default {
     //将修改的数据传入后台，完成修改
     fatherEditInfoSubmit(formData) {
       var _this = this;
-      formData.menuIds = this.$refs.menu.getCheckedKeys();
-      editRoleInfoApi(formData)
-        .then(function(response) {
-          if (response.data.code == "200") {
-            _this.$message.success("修改成功");
-            _this.handleClose();
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          formData.menuIds = this.$refs.menu.getCheckedKeys();
+          editRoleInfoApi(formData)
+            .then(function(response) {
+              if (response.data.code == "200") {
+                _this.$message.success("修改成功");
+                _this.handleClose();
 
-            //通过全局变量刷新表格数据
-            var bo = _this.$store.state.ifDictSuccess;
-            if (bo == true) {
-              bo = false;
-            } else {
-              bo = true;
-            }
-            _this.$store.state.ifDictSuccess = bo;
-          } else {
-            _this.$message.error("修改失败");
-          }
-        })
-        .catch(function(error) {
-          _this.$message.error("修改失败");
-          console.log(error);
-        });
+                //通过全局变量刷新表格数据
+                var bo = _this.$store.state.ifDictSuccess;
+                if (bo == true) {
+                  bo = false;
+                } else {
+                  bo = true;
+                }
+                _this.$store.state.ifDictSuccess = bo;
+              } else {
+                _this.$message.error("修改失败");
+              }
+            })
+            .catch(function(error) {
+              _this.$message.error("修改失败");
+              console.log(error);
+            });
+        }
+      });
     },
     //重置新增表单
     fatherResetAddForm() {

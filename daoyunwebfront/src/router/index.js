@@ -108,7 +108,7 @@ const router = new Router({
           path: '/myError',
           component: () => import('../components/myError.vue'),
           meta: { title: '自定义异常' }
-        },
+        }
       ]
     },
   ]

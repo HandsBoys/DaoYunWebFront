@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar" v-if="reloadPage">
     <el-menu
       class="sidebar-el-menu"
       :default-active="onRoutes"
@@ -189,7 +189,8 @@ export default {
       ],
       item2s: [],
       // 当前激活的路径（第二级菜单栏）
-      activepath: ""
+      activepath: "",
+      reloadPage: true
     };
   },
   computed: {
@@ -198,6 +199,9 @@ export default {
     },
     backgroundColor() {
       return this.$store.state.backgroundColor;
+    },
+    ifReloadSideBar() {
+      return this.$store.state.reloadSidebar;
     }
   },
   created() {
@@ -238,6 +242,17 @@ export default {
         return true;
       }
       return true;
+    }
+  },
+  watch: {
+    ifReloadSideBar: function() {
+      console.log("ifReloadSideBar");
+      this.reloadPage = false;
+
+      this.$nextTick(() => {
+        this.getMenu();
+        this.reloadPage = true;
+      });
     }
   }
 };
