@@ -12,7 +12,7 @@ const http = {
     get(url, params) {
         const config = {
             method: 'get',
-            url: url
+            url: url,
         }
         if (params) config.params = params
         return request(config)

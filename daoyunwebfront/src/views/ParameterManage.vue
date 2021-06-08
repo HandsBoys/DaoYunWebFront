@@ -52,7 +52,8 @@ import {
   getConfigInfoListApi,
   addConfigInfoApi,
   editConfigInfoApi,
-  deletetConfigInfoApi
+  deletetConfigInfoApi,
+  ifConfigKeyRepeat
 } from "@/api/api";
 export default {
   name: "ParameterManage",
@@ -64,6 +65,22 @@ export default {
     this.initForm();
   },
   data() {
+    var validateConfigKey = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("参数键名不能为空"));
+      } else {
+        //绑定接口
+        var _this = this;
+        ifConfigKeyRepeat(this.form.configKey).then(function(response) {
+          if (response.data == false) {
+            return callback(new Error("参数键名重复"));
+          } else {
+            callback();
+          }
+        });
+      }
+    };
+
     return {
       ifshow: false,
       infoUrl: "/system/config", //获取列表的URL
@@ -84,7 +101,7 @@ export default {
           { required: true, message: "参数名称不能为空", trigger: "blur" }
         ],
         configKey: [
-          { required: true, message: "参数键名不能为空", trigger: "blur" }
+          { required: true, validator: validateConfigKey, trigger: "blur" }
         ],
         configValue: [
           { required: true, message: "参数键值不能为空", trigger: "blur" }

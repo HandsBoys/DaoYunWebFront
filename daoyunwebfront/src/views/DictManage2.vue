@@ -43,71 +43,19 @@
           <el-form-item label="字典明细" prop="detail">
             <el-button type="primary" @click="addFormItem">添加明细</el-button>
           </el-form-item>
+
+          <div v-for="(item, index) in dynamicItem" :key="index">
+            <el-form-item label="姓名">
+              <el-input v-model="item.name"></el-input>
+            </el-form-item>
+            <!-- <el-form-item>
+              <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            </el-form-item>-->
+          </div>
         </el-form>
-
-        <el-table :data="dictData" style="width: 100%" class="dictDataTable" row-key="id">
-          <el-table-column
-            v-for="(item, index) in col"
-            :key="`col_${index}`"
-            :prop="dropCol[index].prop"
-            :label="item.label"
-          ></el-table-column>
-          <el-table-column label="操作" prop="option">
-            <template slot-scope="scope">
-              <el-button type="primary" @click="editDictData(scope.row)" icon="el-icon-edit" circle></el-button>
-              <el-button
-                type="danger"
-                @click="deleteDictData(scope.row)"
-                icon="el-icon-delete"
-                circle
-              ></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="submitForm">提 交</el-button>
           <el-button @click="resetForm">重 置</el-button>
-        </span>
-      </el-dialog>
-    </div>
-    <div>
-      <el-dialog
-        :title="title2"
-        :visible.sync="open2"
-        width="45%"
-        append-to-body
-        :before-close="handleClose2"
-      >
-        <el-form ref="form2" :model="form2" :rules="rules2" label-width="80px" v-if="reFresh2">
-          <el-form-item label="字典标签" prop="dictLabel">
-            <el-input v-model="form2.dictLabel" placeholder="请输入字典标签"/>
-          </el-form-item>
-          <el-form-item label="字典键值" prop="dictValue">
-            <el-input v-model="form2.dictValue" placeholder="请输入字典键值"/>
-          </el-form-item>
-          <el-form-item label="是否默认" prop="default">
-            <el-radio-group v-model="form2.isDefault">
-              <el-radio :key="0" :label="0">否</el-radio>
-              <el-radio :key="1" :label="1">是</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-radio-group v-model="form2.status">
-              <el-radio
-                v-for="dict in statusOptions"
-                :key="dict.dictValue"
-                :label="dict.dictValue"
-              >{{dict.dictLabel}}</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="备注" prop="remark">
-            <el-input v-model="form2.remark" type="textarea" placeholder="请输入内容"></el-input>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="submitForm2">保 存</el-button>
-          <el-button @click="resetForm2">重 置</el-button>
         </span>
       </el-dialog>
     </div>
@@ -125,17 +73,12 @@
 </template>
 
 <script>
-import Sortable from "sortablejs";
 import vTable from "../components/CurrTable.vue";
 import {
   getDictInfoListApi,
   addDictInfoApi,
   editDictInfoApi,
-  deleteDictInfoApi,
-  ifDictValueRepeat,
-  addDictDataInfoApi,
-  getDictDataInfoListApi,
-  editDictDataInfoApi
+  deleteDictInfoApi
 } from "@/api/api";
 // import { routerToLogin } from "@/utils/routerGuard";
 import Cookies from "js-cookie";
@@ -150,29 +93,6 @@ export default {
     this.initForm();
   },
   data() {
-    var validateDictValue = (rule, value, callback) => {
-      if (!value) {
-        return callback(new Error("字典键值不能为空"));
-      } else {
-        var _this = this;
-        ifDictValueRepeat(this.form.dictType, this.form2.dictValue).then(
-          function(response) {
-            console.log(response);
-            if (response.data == false) {
-              return callback(new Error("字典键值重复"));
-            } else {
-              for(var i=0; i<_this.dictData.length; i++) {
-                if(_this.dictData[i].dictValue==_this.form2.dictValue) {
-                  return callback(new Error("字典键值重复"));
-                }
-              }
-              callback();
-            }
-          }
-        );
-      }
-    };
-
     return {
       ifshow: false,
       tableData: [],
@@ -218,62 +138,7 @@ export default {
       title: "",
       editRow: [],
       ifInputDictType: false,
-
-      open2: false,
-      form2: {},
-      rules2: {
-        dictLabel: [
-          { required: true, message: "字典标签不能为空", trigger: "blur" }
-        ],
-        dictValue: [
-          { required: true, validator: validateDictValue, trigger: "blur" }
-        ]
-      },
-      statusOptions: [
-        //从数据字典中获取，暂时写死
-        { dictValue: 0, dictLabel: "正常" },
-        { dictValue: 1, dictLabel: "停用" }
-      ],
-      reFresh2: true,
-      dictData: [],
-      col: [
-        {
-          label: "字典标签",
-          prop: "dictLabel"
-        },
-        {
-          label: "字典键值",
-          prop: "dictValue"
-        },
-        {
-          label: "默认",
-          prop: "isDefault"
-        },
-        {
-          label: "状态",
-          prop: "status"
-        }
-      ],
-      dropCol: [
-        {
-          label: "字典标签",
-          prop: "dictLabel"
-        },
-        {
-          label: "字典键值",
-          prop: "dictValue"
-        },
-        {
-          label: "默认",
-          prop: "isDefault"
-        },
-        {
-          label: "状态",
-          prop: "status"
-        }
-      ],
-      title2: "",
-      drawBodyWrapper: ""
+      dynamicItem: []
     };
   },
   methods: {
@@ -304,11 +169,6 @@ export default {
       this.title = "新增";
       this.diaLogMode = "add";
       this.ifInputDictType = false;
-
-      this.$nextTick(() => {
-        this.drawBodyWrapper = document.querySelector(".el-dialog__body tbody"); //找element的标签
-        this.rowDrop();
-      });
     },
     //将新增的数据传入后台，完成新增
     fatherAddInfoSubmit(formData) {
@@ -320,12 +180,6 @@ export default {
             .then(function(response) {
               console.log(response);
               if (response.data.code == "200") {
-                //新增字典数据
-                var len = _this.dictData.length;
-                for (var i = 0; i < len; i++) {
-                  _this.dictData[i].dictSort = i;
-                  addDictDataInfoApi(_this.dictData[i]);
-                }
                 _this.$message.success("新增成功");
                 _this.handleClose();
 
@@ -372,22 +226,6 @@ export default {
         status: tempStatus,
         remark: row["remark"]
       };
-      var _this = this;
-      var dictType = {};
-      dictType["dictType"] = row.dictType;
-      getDictDataInfoListApi(dictType).then(function(response) {
-        console.log(response);
-        _this.dictData = response.data;
-        for (var i = 0; i < _this.dictData.length; i++) {
-          _this.dictData[i].isDefault = _this.dictData[i].isDefault ? 1 : 0;
-          _this.dictData[i].status = _this.dictData[i].status ? 1 : 0;
-        }
-      });
-
-      this.$nextTick(() => {
-        this.drawBodyWrapper = document.querySelector(".el-dialog__body tbody"); //找element的标签
-        this.rowDrop();
-      });
     },
     //将修改的数据传入后台，完成修改
     fatherEditInfoSubmit(formData) {
@@ -398,14 +236,6 @@ export default {
             .then(function(response) {
               //console.log(response);
               if (response.data.code == "200") {
-                var len = _this.dictData.length;
-                console.log(_this.dictData)
-                for (var i = 0; i < len; i++) {
-                  _this.dictData[i].dictSort = i;
-                  editDictDataInfoApi(_this.dictData[i]);
-                }
-                console.log(_this.dictData)
-
                 _this.$message.success("修改成功");
                 _this.handleClose();
 
@@ -430,6 +260,7 @@ export default {
     },
     //重置新增表单
     fatherResetAddForm() {
+      //console.log("fatherResetAddForm");
       this.form = {
         // dictId: undefined,
         id: undefined,
@@ -438,7 +269,6 @@ export default {
         status: 0,
         remark: undefined
       };
-      this.dictData = [];
     },
     //重置修改表单
     fatherResetEditForm() {
@@ -460,16 +290,20 @@ export default {
     handleClose() {
       //console.log("handleClose()");
       this.open = false;
-      this.dictData = [];
       this.initForm();
     },
     //删除和批量删除函数
     fatherDeleteInfo(formData) {
+      //console.log("fatherDeleteInfo");
+      //console.log(formData);
       var idForAllDel = "";
       for (let i = 0; i < formData.length; i++) {
+        // idForAllDel[i] = formData[i].dictId;
         if (i == formData.length - 1) {
+          // idForAllDel = idForAllDel + formData[i].dictId;
           idForAllDel = idForAllDel + formData[i].id;
         } else {
+          // idForAllDel = idForAllDel + formData[i].dictId + ", ";
           idForAllDel = idForAllDel + formData[i].id + ", ";
         }
       }
@@ -509,6 +343,14 @@ export default {
     //点击查看信息按钮触发
     fatherShowMes(row) {
       //路由跳转，将row传递到查看信息界面
+      // var bo = this.$store.state.updatePage;
+      // if (bo == true) {
+      //   bo = false;
+      // } else {
+      //   bo = true;
+      // }
+      // this.$store.state.updatePage = bo;
+
       Cookies.set(this.detailMesUrl, row, {
         expires: 30
       });
@@ -519,6 +361,7 @@ export default {
     //初始化表单
     initForm() {
       this.form = {
+        // dictId: undefined,
         id: undefined,
         dictName: undefined,
         dictType: undefined,
@@ -545,88 +388,9 @@ export default {
       }
     },
     addFormItem() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          this.initForm2();
-          this.open2 = true;
-          this.title2 = "添加字典明細";
-        }
+      this.dynamicItem.push({
+        name: ""
       });
-    },
-    initForm2() {
-      this.form2 = {
-        id: undefined,
-        dictType: undefined,
-        dictLabel: undefined,
-        dictValue: undefined,
-        dictSort: 0,
-        isDefault: 0,
-        status: 0,
-        remark: undefined
-      };
-      this.reFresh2 = false;
-      this.$nextTick(() => {
-        this.reFresh2 = true;
-      });
-    },
-    submitForm2() {
-      if (this.title2 == "添加字典明細") {
-        this.form2.dictType = this.form.dictType;
-        this.dictData.push(this.form2);
-      } else {
-        var ifUpdateDefeat = 0;
-        for (var i = 0; i < this.dictData.length; i++) {
-          if (this.dictData[i].id == this.form2.id) {
-            this.dictData[i] = this.form2;
-            if (this.dictData[i].isDefault == 1) {
-              ifUpdateDefeat = 1;
-            }
-            break;
-          }
-        }
-        if (ifUpdateDefeat == 1) {
-          for (var i = 0; i < this.dictData.length; i++) {
-            if (this.dictData[i].id != this.form2.id) {
-              this.dictData[i].isDefault = 0;
-            }
-          }
-        }
-      }
-      //console.log(this.dictData);
-      this.handleClose2();
-      this.$message.success("保存成功");
-    },
-    resetForm2() {
-      if (this.title2 == "添加字典明細") {
-        this.initForm2();
-      }
-    },
-    handleClose2() {
-      this.open2 = false;
-      this.initForm2();
-    },
-    //行拖拽
-    rowDrop() {
-      const tbody = this.drawBodyWrapper;
-      const _this = this;
-      console.log(tbody);
-      Sortable.create(tbody, {
-        // 官网上的配置项,加到这里面来,可以实现各种效果和功能
-        animation: 150,
-        ghostClass: "blue-background-class",
-        onEnd({ newIndex, oldIndex }) {
-          console.log(newIndex,oldIndex);
-          const currRow = _this.dictData.splice(oldIndex, 1)[0];
-          console.log(currRow);
-          _this.dictData.splice(newIndex, 0, currRow);
-          console.log(_this.dictData);
-        }
-      });
-    },
-    editDictData(row) {
-      this.form2 = row;
-      this.open2 = true;
-      this.title2 = "修改字典明細";
     }
   }
 };

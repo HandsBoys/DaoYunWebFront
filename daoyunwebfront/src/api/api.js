@@ -86,6 +86,11 @@ export function deleteDictDataInfoApi(DictCode) {
     return http.delete(`/system/dictdata/` + DictCode)
 }
 
+//判斷DictValue是否重複
+export function ifDictValueRepeat(dictType,dictValue) {
+    return http.get(`/system/dictdata/query-dict-value?dictType=`+ dictType + `&dictValue=`+ dictValue)
+}
+
 //获取参数管理信息列表
 export function getConfigInfoListApi() {
     return http.get(`/system/config`)
@@ -100,6 +105,11 @@ export function editConfigInfoApi(data) {
     //console.log(data)
     return http.post(`/system/config`, data)
 }
+//判斷ConfigKey是否重複
+export function ifConfigKeyRepeat(configKey) {
+    return http.get(`/system/config/query-config-key?configKey=`+ configKey)
+}
+
 //删除角色信息
 export function deletetConfigInfoApi(ConfigId) {
     //console.log(data)

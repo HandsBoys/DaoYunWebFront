@@ -321,6 +321,7 @@ export default {
       } else {
         getMessCodeApi(this.loginForm.username)
           .then(function(response) {
+            console.log(response);
             if (response.data.code == "200") {
               _this.$message.success("短信发送成功");
             } else {
