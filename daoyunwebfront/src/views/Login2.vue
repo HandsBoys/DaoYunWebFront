@@ -97,7 +97,7 @@
           <span v-else>登 录 中...</span>
         </el-button>
       </el-form-item>
-      <el-link class="forPassLink" @click="toForPass()">忘记密码</el-link>
+      <!-- <el-link class="forPassLink" @click="toForPass()">忘记密码</el-link> -->
       <!-- <el-link class="registerLink" @click="toRegister()">注册</el-link> -->
     </el-form>
     <!--  底部  -->
@@ -139,13 +139,13 @@ export default {
       if (!value) {
         return callback(new Error("密码不能为空"));
       }
-      setTimeout(() => {
-        if (!passReg.test(value)) {
-          callback(new Error("密码格式不正确，请重新输入"));
-        } else {
-          callback();
-        }
-      }, 1000);
+      // setTimeout(() => {
+      //   if (!passReg.test(value)) {
+      //     callback(new Error("密码格式不正确，请重新输入"));
+      //   } else {
+      //     callback();
+      //   }
+      // }, 1000);
     };
     var validateCode = (rule, value, callback) => {
       if (!value) {
@@ -177,7 +177,7 @@ export default {
           { required: true, validator: validatePhone, trigger: "blur" }
         ],
         password: [
-          { required: true, validator: validatePassWord, trigger: "blur" }
+          { required: true, message: "密码不能为空", trigger: "blur" }
         ],
         code: [{ required: true, validator: validateCode, trigger: "blur" }]
       },
@@ -253,7 +253,7 @@ export default {
               this.loginForm.code
             )
               .then(function(response) {
-                console.log(response);
+                // console.log(response);
                 if (response.data.code != "200") {
                   _this.$message.error(response.data.msg);
                   _this.loading = false;

@@ -45,7 +45,13 @@
           </el-form-item>
         </el-form>
 
-        <el-table :data="dictData" style="width: 100%" class="dictDataTable" row-key="id">
+        <el-table
+          :data="dictData"
+          style="width: 100%"
+          class="dictDataTable"
+          row-key="id"
+          v-if="reFresh3"
+        >
           <el-table-column
             v-for="(item, index) in col"
             :key="`col_${index}`"
@@ -135,9 +141,10 @@ import {
   ifDictValueRepeat,
   addDictDataInfoApi,
   getDictDataInfoListApi,
-  editDictDataInfoApi
+  editDictDataInfoApi,
+  deleteDictDataInfoApi
 } from "@/api/api";
-// import { routerToLogin } from "@/utils/routerGuard";
+
 import Cookies from "js-cookie";
 
 export default {
@@ -157,12 +164,12 @@ export default {
         var _this = this;
         ifDictValueRepeat(this.form.dictType, this.form2.dictValue).then(
           function(response) {
-            console.log(response);
+            //console.log(response);
             if (response.data == false) {
               return callback(new Error("字典键值重复"));
             } else {
-              for(var i=0; i<_this.dictData.length; i++) {
-                if(_this.dictData[i].dictValue==_this.form2.dictValue) {
+              for (var i = 0; i < _this.dictData.length; i++) {
+                if (_this.dictData[i].dictValue == _this.form2.dictValue) {
                   return callback(new Error("字典键值重复"));
                 }
               }
@@ -221,6 +228,7 @@ export default {
 
       open2: false,
       form2: {},
+      tempForm2: {},
       rules2: {
         dictLabel: [
           { required: true, message: "字典标签不能为空", trigger: "blur" }
@@ -236,6 +244,7 @@ export default {
       ],
       reFresh2: true,
       dictData: [],
+      tempDictData: [],
       col: [
         {
           label: "字典标签",
@@ -273,7 +282,8 @@ export default {
         }
       ],
       title2: "",
-      drawBodyWrapper: ""
+      drawBodyWrapper: "",
+      reFresh3: true
     };
   },
   methods: {
@@ -283,7 +293,7 @@ export default {
       getDictInfoListApi()
         .then(function(response) {
           // console.log(response);
-          _this.tableData = response.data;
+          _this.tableData = response.data.data;
           //暂时这样写
           for (var i = 0; i < _this.tableData.length; i++) {
             if (_this.tableData[i]["status"] == false) {
@@ -318,12 +328,13 @@ export default {
         if (valid) {
           addDictInfoApi(formData)
             .then(function(response) {
-              console.log(response);
+              //console.log(response);
               if (response.data.code == "200") {
                 //新增字典数据
                 var len = _this.dictData.length;
                 for (var i = 0; i < len; i++) {
                   _this.dictData[i].dictSort = i;
+                  _this.dictData[i].dictType = formData.dictType;
                   addDictDataInfoApi(_this.dictData[i]);
                 }
                 _this.$message.success("新增成功");
@@ -352,6 +363,7 @@ export default {
     fatherEditInfo(row) {
       this.open = true;
       this.editRow = row;
+
       this.title = "修改";
       this.diaLogMode = "edit";
       this.ifInputDictType = true;
@@ -376,12 +388,13 @@ export default {
       var dictType = {};
       dictType["dictType"] = row.dictType;
       getDictDataInfoListApi(dictType).then(function(response) {
-        console.log(response);
-        _this.dictData = response.data;
+        //console.log(response);
+        _this.dictData = response.data.data;
         for (var i = 0; i < _this.dictData.length; i++) {
           _this.dictData[i].isDefault = _this.dictData[i].isDefault ? 1 : 0;
           _this.dictData[i].status = _this.dictData[i].status ? 1 : 0;
         }
+        _this.tempDictData = _this.dictData.concat();
       });
 
       this.$nextTick(() => {
@@ -399,12 +412,16 @@ export default {
               //console.log(response);
               if (response.data.code == "200") {
                 var len = _this.dictData.length;
-                console.log(_this.dictData)
+                
+                for(var i=0; i<_this.tempDictData.length; i++) {
+                  deleteDictDataInfoApi(_this.tempDictData[i].id);
+                }
+
                 for (var i = 0; i < len; i++) {
                   _this.dictData[i].dictSort = i;
-                  editDictDataInfoApi(_this.dictData[i]);
+                  _this.dictData[i].dictType = formData.dictType;
+                  addDictDataInfoApi(_this.dictData[i]);
                 }
-                console.log(_this.dictData)
 
                 _this.$message.success("修改成功");
                 _this.handleClose();
@@ -455,6 +472,10 @@ export default {
         status: tempStatus,
         remark: this.editRow["remark"]
       };
+
+      this.dictData = [];
+      //console.log(this.tempDictData);
+      this.dictData = this.tempDictData.concat();
     },
     //关闭新增和修改弹窗
     handleClose() {
@@ -473,7 +494,7 @@ export default {
           idForAllDel = idForAllDel + formData[i].id + ", ";
         }
       }
-      console.log(idForAllDel);
+      //console.log(idForAllDel);
 
       //二次确认删除;
       var _this = this;
@@ -484,7 +505,7 @@ export default {
         .then(() => {
           deleteDictInfoApi(idForAllDel)
             .then(function(response) {
-              console.log(response);
+              //console.log(response);
               if (response.data.code == "200") {
                 _this.$message.success("删除成功");
                 //通过全局变量刷新表格数据
@@ -571,34 +592,78 @@ export default {
     },
     submitForm2() {
       if (this.title2 == "添加字典明細") {
-        this.form2.dictType = this.form.dictType;
-        this.dictData.push(this.form2);
-      } else {
-        var ifUpdateDefeat = 0;
-        for (var i = 0; i < this.dictData.length; i++) {
-          if (this.dictData[i].id == this.form2.id) {
-            this.dictData[i] = this.form2;
-            if (this.dictData[i].isDefault == 1) {
-              ifUpdateDefeat = 1;
+        this.$refs.form2.validate(valid => {
+          if (valid) {
+            //this.form2.dictType = this.form.dictType;
+            if (this.form2.isDefault == 1) {
+              for (var i = 0; i < this.dictData.length; i++) {
+                this.dictData[i].isDefault = 0;
+              }
             }
-            break;
+            this.dictData.push(this.form2);
+            this.handleClose2();
+            this.$message.success("保存成功");
           }
-        }
-        if (ifUpdateDefeat == 1) {
-          for (var i = 0; i < this.dictData.length; i++) {
-            if (this.dictData[i].id != this.form2.id) {
-              this.dictData[i].isDefault = 0;
-            }
+        });
+      } else {
+        if (this.form2.dictLabel != "" && this.form2.dictValue != "") {
+          var bo = true;
+          var _this = this;
+          if (this.form2.dictValue != this.tempForm2.dictValue) {
+            ifDictValueRepeat(this.form.dictType, this.form2.dictValue).then(
+              function(response) {
+                bo = response.data;
+                if (bo == true) {
+                  _this.funcForsubmitForm2Edit();
+                }
+              }
+            );
+          } else {
+            this.funcForsubmitForm2Edit();
           }
         }
       }
-      //console.log(this.dictData);
+    },
+    funcForsubmitForm2Edit() {
+      var ifUpdateDefeat = 0;
+      for (var i = 0; i < this.dictData.length; i++) {
+        if (this.dictData[i].id == this.form2.id) {
+          this.dictData[i] = this.form2;
+          if (this.dictData[i].isDefault == 1) {
+            ifUpdateDefeat = 1;
+          }
+          break;
+        }
+      }
+      if (ifUpdateDefeat == 1) {
+        for (var i = 0; i < this.dictData.length; i++) {
+          if (this.dictData[i].id != this.form2.id) {
+            this.dictData[i].isDefault = 0;
+          }
+        }
+      }
+
+      this.reFresh3 = false;
+      this.$nextTick(() => {
+        this.reFresh3 = true;
+      });
       this.handleClose2();
       this.$message.success("保存成功");
     },
     resetForm2() {
       if (this.title2 == "添加字典明細") {
         this.initForm2();
+      } else {
+        this.form2 = {
+          id: this.tempForm2.id,
+          dictType: this.tempForm2.dictType,
+          dictLabel: this.tempForm2.dictLabel,
+          dictValue: this.tempForm2.dictValue,
+          dictSort: this.tempForm2.dictSort,
+          isDefault: this.tempForm2.isDefault,
+          status: this.tempForm2.status,
+          remark: this.tempForm2.remark
+        };
       }
     },
     handleClose2() {
@@ -609,24 +674,47 @@ export default {
     rowDrop() {
       const tbody = this.drawBodyWrapper;
       const _this = this;
-      console.log(tbody);
+      // console.log(tbody);
       Sortable.create(tbody, {
         // 官网上的配置项,加到这里面来,可以实现各种效果和功能
         animation: 150,
         ghostClass: "blue-background-class",
         onEnd({ newIndex, oldIndex }) {
-          console.log(newIndex,oldIndex);
+          //console.log(newIndex, oldIndex);
           const currRow = _this.dictData.splice(oldIndex, 1)[0];
-          console.log(currRow);
+          //console.log(currRow);
           _this.dictData.splice(newIndex, 0, currRow);
-          console.log(_this.dictData);
+          //console.log(_this.dictData);
         }
       });
     },
     editDictData(row) {
-      this.form2 = row;
+      //this.form2 = row;
+      this.tempForm2 = row;
+      this.form2 = {
+        id: row.id,
+        dictType: row.dictType,
+        dictLabel: row.dictLabel,
+        dictValue: row.dictValue,
+        dictSort: row.dictSort,
+        isDefault: row.isDefault,
+        status: row.status,
+        remark: row.remark
+      };
       this.open2 = true;
       this.title2 = "修改字典明細";
+    },
+    deleteDictData(row) {
+      this.$confirm("确定要删除吗？", "提示", {
+        type: "warning"
+      }).then(() => {
+        for (var i = 0; i < this.dictData.length; i++) {
+          if (this.dictData[i].id == row.id) {
+            this.dictData.splice(i, 1);
+            break;
+          }
+        }
+      });
     }
   }
 };

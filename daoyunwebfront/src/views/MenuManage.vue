@@ -2,8 +2,8 @@
   <div id="MenuManage" v-if="ifshow">
     <div class="handle-box">
       <el-button type="primary" icon="el-icon-plus" class="handle-del mr10" @click="addInfo">新增</el-button>
-      <el-input v-model="searchText" placeholder="菜单名称" class="handle-input mr10"></el-input>
-      <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+      <!-- <el-input v-model="searchText" placeholder="菜单名称" class="handle-input mr10"></el-input>
+      <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button> -->
     </div>
     <el-table
       v-loading="loading"
@@ -106,7 +106,7 @@
               <el-input v-model="form.path" placeholder="请输入路由地址"/>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="form.menuType == 'C'">
+          <!-- <el-col :span="12" v-if="form.menuType == 'C'">
             <el-form-item label="组件路径" prop="component">
               <el-input v-model="form.component" placeholder="请输入组件路径"/>
             </el-form-item>
@@ -115,7 +115,7 @@
             <el-form-item v-if="form.menuType != 'M'" label="权限标识">
               <el-input v-model="form.perms" placeholder="请权限标识" maxlength="50"/>
             </el-form-item>
-          </el-col>
+          </el-col>-->
           <el-col :span="12">
             <el-form-item v-if="form.menuType != 'F'" label="显示状态">
               <el-radio-group v-model="form.visible">
@@ -149,7 +149,12 @@
 </template>
 
 <script>
-import { getAllMenuForRoleApi } from "@/api/api";
+import {
+  getAllMenuForRoleApi,
+  addMenuInfoApi,
+  editMenuInfoApi,
+  deleteMenuInfoApi
+} from "@/api/api";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import IconSelect from "@/components/IconSelect";
@@ -180,12 +185,12 @@ export default {
       },
       menuOptions: [],
       statusOptions: [
-        { dictValue: 0, dictLabel: "正常" },
-        { dictValue: 1, dictLabel: "停用" }
+        { dictValue: false, dictLabel: "正常" },
+        { dictValue: true, dictLabel: "停用" }
       ],
       visibleOptions: [
-        { dictValue: 0, dictLabel: "显示" },
-        { dictValue: 1, dictLabel: "隐藏" }
+        { dictValue: true, dictLabel: "显示" },
+        { dictValue: false, dictLabel: "隐藏" }
       ],
       editRow: []
     };
@@ -195,8 +200,8 @@ export default {
     getMenuInfo() {
       var _this = this;
       getAllMenuForRoleApi().then(function(response) {
-        console.log(response);
-        _this.menuList = response.data;
+        //console.log(response);
+        _this.menuList = response.data.data;
         _this.ifshow = true;
         _this.loading = false;
       });
@@ -229,8 +234,9 @@ export default {
       getAllMenuForRoleApi().then(response => {
         _this.menuOptions = [];
         const menu = { id: 0, menuName: "主类目", children: [] };
-        menu.children = response.data;
+        menu.children = response.data.data;
         _this.menuOptions.push(menu);
+        //  console.log(response)
       });
     },
     // 选择图标
@@ -248,8 +254,8 @@ export default {
         path: undefined,
         component: undefined,
         perms: undefined,
-        visible: 0,
-        status: 0
+        visible: true,
+        status: false
       };
 
       this.reFresh = false;
@@ -271,17 +277,39 @@ export default {
       this.$refs.menuForm.validate(valid => {
         if (valid) {
           if (this.title == "新增") {
-            //使用全局变量控制菜单变化
-            this.$store.state.reloadSidebar = this.$store.state.reloadSidebar
-              ? false
-              : true;
-            //调用接口，将数据送入后台
-            console.log(this.form);
-          }else {
-
+            //console.log(this.form)
+            addMenuInfoApi(this.form).then(function(response) {
+              // console.log(response);
+              if (response.data.code == "200") {
+                _this.$message.success("新增成功");
+                _this.postSubmit();
+              } else {
+                _this.$message.error("新增失败");
+              }
+            });
+          } else {
+            //console.log(this.form)
+            editMenuInfoApi(this.form).then(function(response) {
+              // console.log(response);
+              if (response.data.code == "200") {
+                _this.$message.success("修改成功");
+                _this.postSubmit();
+              } else {
+                _this.$message.error("修改失败");
+              }
+            });
           }
         }
       });
+    },
+    postSubmit() {
+      this.handleClose();
+      this.getMenuInfo();
+      this.getTreeselect();
+      //使用全局变量控制菜单变化
+      this.$store.state.reloadSidebar = this.$store.state.reloadSidebar
+        ? false
+        : true;
     },
     resetForm() {
       if (this.title == "新增") {
@@ -302,8 +330,9 @@ export default {
       }
     },
     handleUpdate(row) {
-      console.log(row);
+      //console.log(row);
       this.form = {
+        id: row.id,
         parentId: row.parentId,
         menuType: row.menuType,
         icon: row.icon,
@@ -312,15 +341,37 @@ export default {
         path: row.path,
         component: row.component,
         perms: row.perms,
-        visible: row.visible ? 1 : 0,
-        status: row.status ? 1 : 0
+        visible: row.visible,
+        status: row.status
       };
       this.title = "修改";
       this.editRow = row;
       this.open = true;
     },
     handleDelete(row) {
-      console.log(row)
+      // console.log(row);
+      //二次确认删除;
+      var _this = this;
+      this.$confirm("确定要删除吗？", "提示", {
+        type: "warning"
+      })
+        .then(() => {
+          deleteMenuInfoApi(row.id)
+            .then(function(response) {
+              // console.log(response);
+              if (response.data.code == "200") {
+                _this.$message.success("删除成功");
+                _this.postSubmit();
+              } else {
+                _this.$message.error("删除失败");
+              }
+            })
+            .catch(function(error) {
+              _this.$message.error("删除失败");
+              console.log(error);
+            });
+        })
+        .catch(() => {});
     }
   },
   created() {

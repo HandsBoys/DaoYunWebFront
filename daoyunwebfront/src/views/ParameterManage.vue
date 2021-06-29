@@ -73,7 +73,11 @@ export default {
         var _this = this;
         ifConfigKeyRepeat(this.form.configKey).then(function(response) {
           if (response.data == false) {
-            return callback(new Error("参数键名重复"));
+            if (_this.form.configKey != _this.repeatTemp) {
+              return callback(new Error("参数键名重复"));
+            }else {
+              callback();
+            }
           } else {
             callback();
           }
@@ -107,7 +111,8 @@ export default {
           { required: true, message: "参数键值不能为空", trigger: "blur" }
         ]
       },
-      color1: null
+      color1: null,
+      repeatTemp: ""
     };
   },
   methods: {
@@ -115,8 +120,8 @@ export default {
       var _this = this;
       getConfigInfoListApi()
         .then(function(response) {
-          console.log(response);
-          _this.tableData = response.data;
+          //console.log(response);
+          _this.tableData = response.data.data;
           _this.ifshow = true;
         })
         .catch(function(error) {
@@ -139,7 +144,7 @@ export default {
         if (valid) {
           addConfigInfoApi(formData)
             .then(function(response) {
-              console.log(response);
+              //console.log(response);
               if (response.data.code == "200") {
                 _this.$message.success("新增成功");
                 _this.handleClose();
@@ -168,6 +173,7 @@ export default {
       this.open = true;
       this.editRow = row;
       this.title = "修改";
+      this.repeatTemp = row["configKey"];
 
       this.form = {
         id: row["id"],
@@ -184,7 +190,7 @@ export default {
         if (valid) {
           editConfigInfoApi(formData)
             .then(function(response) {
-              console.log(response);
+              //console.log(response);
               if (response.data.code == "200") {
                 _this.$message.success("修改成功");
                 _this.handleClose();
@@ -218,7 +224,7 @@ export default {
           idForAllDel = idForAllDel + formData[i].id + ", ";
         }
       }
-      console.log(idForAllDel);
+      //console.log(idForAllDel);
 
       //二次确认删除;
       var _this = this;
@@ -229,7 +235,7 @@ export default {
         .then(() => {
           deletetConfigInfoApi(idForAllDel)
             .then(function(response) {
-              console.log(response);
+              //console.log(response);
               if (response.data.code == "200") {
                 _this.$message.success("删除成功");
                 //通过全局变量刷新表格数据

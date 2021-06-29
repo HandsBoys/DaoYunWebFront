@@ -5,36 +5,16 @@ Vue.use(Router)
 
 const router = new Router({
   routes: [
-    // {
-    //   path: '/Demo',
-    //   component: () => import('../views/Demo.vue'),
-    //   meta: { title: '登录' }
-    // },
-    // {
-    //   path: '/Login',
-    //   component: () => import('../views/Login.vue'),
-    //   meta: { title: '登录' }
-    // },
     {
       path: '/Login2',
       component: () => import('../views/Login2.vue'),
       meta: { title: '登录' }
     },
-    // {
-    //   path: '/ForgetPassword',
-    //   component: () => import('../views/ForgetPassword.vue'),
-    //   meta: { title: '忘记密码' }
-    // },
     {
       path: '/ForgetPassword2',
       component: () => import('../views/ForgetPassword2.vue'),
       meta: { title: '忘记密码' }
     },
-    // {
-    //   path: '/Register',
-    //   component: () => import('../views/Register.vue'),
-    //   meta: { title: '注册' }
-    // },
     {
       path: '/Register2',
       component: () => import('../views/Register2.vue'),
@@ -85,32 +65,33 @@ const router = new Router({
           meta: { title: '菜单管理' }
         },
         {
-          path: '/form',
-          component: () => import('../views/UseForm.vue'),
-          meta: { title: '使用编辑样例' }
+          path: '/CourseManage',
+          component: () => import('../views/CourseManage.vue'),
+          meta: { title: '班课管理' }
+        },
+        {
+          path: '/CourseStudentManage',
+          component: () => import('../views/CourseStudentManage.vue'),
+          meta: { title: '班课学生管理' }
+        },
+        {
+          path: '/InstitutionManage',
+          component: () => import('../views/InstitutionManage.vue'),
+          meta: { title: '机构管理' }
         },
         {
           path: '/403',
-          component: () => import('../components/403.vue'),
+          component: () => import('../components/page403.vue'),
           meta: { title: '403' }
         },
         {
           path: '/404',
-          component: () => import('../components/404.vue'),
+          component: () => import('../components/page404.vue'),
           meta: { title: '404' }
-        },
-        {
-          path: '/500',
-          component: () => import('../components/500.vue'),
-          meta: { title: '500' }
-        },
-        {
-          path: '/myError',
-          component: () => import('../components/myError.vue'),
-          meta: { title: '自定义异常' }
-        }
+        },       
       ]
     },
+    {path: '*', redirect: '/404'}
   ]
 })
 

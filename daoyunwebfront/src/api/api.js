@@ -17,6 +17,25 @@ export function registerApi(password, phone, code, userName) {
 export function getSideBarApi(userId) {
     return http.get(`/system/menu`, userId)
 }
+
+//新增菜单信息
+export function addMenuInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/menu`, data)
+}
+
+//修改菜单信息
+export function editMenuInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/menu`, data)
+}
+
+//删除用户信息
+export function deleteMenuInfoApi(MenuId) {
+    //console.log(data)
+    return http.delete(`/system/menu/` + MenuId)
+}
+
 //用户管理
 //获取用户信息列表
 export function getUserInfoListApi() {
@@ -24,20 +43,24 @@ export function getUserInfoListApi() {
 }
 //新增用户信息
 export function addUserInfoApi(data) {
-    //console.log(data)
-    return http.put(`/system/dicttype`, data)
+    // console.log(data)
+    return http.put(`/system/user`, data)
 }
 
 //修改用户信息
 export function editUserInfoApi(data) {
     //console.log(data)
-    return http.post(`/system/dicttype`, data)
+    return http.post(`/system/user`, data)
 }
 
 //删除用户信息
 export function deleteUserInfoApi(UserId) {
     //console.log(data)
-    return http.delete(`/system/dicttype/` + UserId)
+    return http.delete(`/system/user/` + UserId)
+}
+//获取新增用户用的学校，学院、专业列表
+export function getDeptInfoListForUserApi(parentId) {
+    return http.get(`/system/dept/next-dept?parentId=`+ parentId);
 }
 //字典类型
 //获取字典类型信息列表
@@ -153,4 +176,67 @@ export function getAllMenuForRoleApi() {
     return http.get(`/system/menu/listall`)
 }
 
+//获取班课信息列表
+export function getCourseInfoListApi() {
+    return http.get(`/system/course`)
+}
+//新增班课
+export function addCourseInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/course`, data)
+}
+//修改班课
+export function editCourseInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/course`, data)
+}
+//删除班课
+export function deleteCourseInfoApi(courseId) {
+    //console.log(data)
+    return http.delete(`/system/course/` + courseId)
+}
 
+//机构管理
+//获取机构信息列表
+export function getInstitutionInfoListApi() {
+    return http.get(`/system/dept`)
+}
+//新增机构
+export function addInstitutionInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/dept`, data)
+}
+//修改机构
+export function editInstitutionInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/dept`, data)
+}
+//删除机构
+export function deleteInstitutionInfoApi(InstId) {
+    //console.log(data)
+    return http.delete(`/system/dept/` + InstId)
+}
+
+//班课学生
+//获取班课学生信息列表
+export function getCourseStudentInfoListApi(courseId) {
+    return http.get(`/system/course/student?courseId=` + courseId)
+}
+
+//新增班课学生信息
+export function addCourseStudentInfoApi(data) {
+    //console.log(data)
+    return http.put(`/system/course/student?courseId=` + data.courseId + `&studentId=` + data.studentId)
+}
+
+//修改班课学生信息
+export function editCourseStudentInfoApi(data) {
+    //console.log(data)
+    return http.post(`/system/course/student?courseId=` + data.courseId + `&studentId=` + data.studentId + `&score=` + data.score)
+}
+
+//删除班课学生信息
+export function deleteCourseStudentInfoApi(courseId, studentIds) {
+    //console.log(data)
+    return http.delete(`/system/course/student/` + courseId + `/` + studentIds)
+}

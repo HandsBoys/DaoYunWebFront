@@ -110,7 +110,7 @@ export default {
   },
   created() {
     this.setTags(this.$route);
-    console.log(this.tagsList);
+    // console.log(this.tagsList);
     // 监听关闭当前页面的标签页
     bus.$on("close_current_tags", () => {
       for (let i = 0, len = this.tagsList.length; i < len; i++) {

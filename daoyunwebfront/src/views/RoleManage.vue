@@ -90,8 +90,8 @@ export default {
       cols: [
         { prop: "roleName", label: "角色名称" },
         { prop: "roleKey", label: "权限字符" },
-        { prop: "status", label: "状态" },
-        { prop: "createTime", label: "创建时间" }
+        { prop: "status", label: "状态" }
+        // { prop: "createTime", label: "创建时间" }
       ],
       searchLabel: "角色名称",
 
@@ -146,8 +146,8 @@ export default {
       var _this = this;
       getRoleInfoListApi()
         .then(function(response) {
-          console.log(response);
-          _this.tableData = response.data;
+          // console.log(response);
+          _this.tableData = response.data.data;
 
           for (var i = 0; i < _this.tableData.length; i++) {
             if (_this.tableData[i]["status"] == false) {
@@ -168,7 +168,7 @@ export default {
       getAllMenuForRoleApi()
         .then(function(response) {
           //console.log(response);
-          var temp = response.data;
+          var temp = response.data.data;
           for (var i = 0; i < temp.length; i++) {
             var ob1 = new Object();
             _this.menuOptions[i] = ob1;
@@ -230,7 +230,9 @@ export default {
     fatherAddInfoSubmit(formData) {
       var _this = this;
       formData.menuIds = this.$refs.menu.getCheckedKeys();
-      //console.log(formData)
+
+      formData["roleKey"] = "ROLE_" + formData["roleKey"] 
+            // console.log(formData)
       addRoleInfoApi(formData)
         .then(function(response) {
           //console.log(response);
@@ -360,7 +362,7 @@ export default {
           idForAllDel = idForAllDel + formData[i].id + ", ";
         }
       }
-      console.log(idForAllDel);
+      // console.log(idForAllDel);
 
       //二次确认删除;
       var _this = this;
@@ -371,7 +373,7 @@ export default {
         .then(() => {
           deleteRoleInfoApi(idForAllDel)
             .then(function(response) {
-              console.log(response);
+              // console.log(response);
               if (response.data.code == "200") {
                 _this.$message.success("删除成功");
                 //通过全局变量刷新表格数据

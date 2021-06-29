@@ -62,6 +62,11 @@ service.interceptors.response.use(response => {
                 break;
             case 403:
                 error.message = '拒绝访问'
+                localStorage.removeItem('token');
+                removeToken()
+                router.replace({
+                    path: '/login2' // 到登录页重新获取token
+                })
                 break;
             case 404:
                 error.message = '请求错误,未找到该资源'

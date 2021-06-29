@@ -10,16 +10,11 @@
       unique-opened
       router
     >
-      <!-- background-color="#324157"
-      text-color="#bfcbd9"      
-      active-text-color="#20a0ff"
-      -->
       <template v-for="item in items">
         <template v-if="ifHaveChildren(item)">
           <el-submenu :index="item.path + '' " :key="item.path">
             <template slot="title">
               <svg-icon :icon-class="item.icon"/>
-              <!-- <i :class="item.icon"></i> -->
               <span slot="title">{{ item.menuName }}</span>
             </template>
             <template v-for="subItem in item.children">
@@ -50,34 +45,6 @@
           </el-menu-item>
         </template>
       </template>
-
-      <!-- <template v-for="item in items">
-        <template v-if="item.subs">
-          <el-submenu :index="item.index" :key="item.index">
-            <template slot="title">
-              <i :class="item.icon"></i>
-              <span slot="title">{{ item.title }}</span>
-            </template>
-            <template v-for="subItem in item.subs">
-              <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
-                <template slot="title">{{ subItem.title }}</template>
-                <el-menu-item
-                  v-for="(threeItem,i) in subItem.subs"
-                  :key="i"
-                  :index="threeItem.index"
-                >{{ threeItem.title }}</el-menu-item>
-              </el-submenu>
-              <el-menu-item v-else :index="subItem.index" :key="subItem.index">{{ subItem.title }}</el-menu-item>
-            </template>
-          </el-submenu>
-        </template>
-        <template v-else>
-          <el-menu-item :index="item.index" :key="item.index">
-            <i :class="item.icon"></i>
-            <span slot="title">{{ item.title }}</span>
-          </el-menu-item>
-        </template>
-      </template>-->
     </el-menu>
   </div>
 </template>
@@ -217,13 +184,12 @@ export default {
   },
   methods: {
     getMenu() {
-      //使用token获取用户id 未做
       const _this = this;
       var userId = 2;
       getSideBarApi(userId)
         .then(function(response) {
-          _this.items = response.data;
-          console.log(response);
+          _this.items = response.data.data;
+          // console.log(response);
           // console.log(_this.items);
         })
         .catch(function(error) {
@@ -246,7 +212,7 @@ export default {
   },
   watch: {
     ifReloadSideBar: function() {
-      console.log("ifReloadSideBar");
+      // console.log("ifReloadSideBar");
       this.reloadPage = false;
 
       this.$nextTick(() => {

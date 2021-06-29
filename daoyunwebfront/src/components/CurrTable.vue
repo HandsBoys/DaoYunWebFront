@@ -11,8 +11,8 @@
             @click="delAllSelection"
           >批量删除</el-button>
         </span>
-        <el-input v-model="searchText" :placeholder="searchLabel" class="handle-input mr10"></el-input>
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+        <!-- <el-input v-model="searchText" :placeholder="searchLabel" class="handle-input mr10"></el-input>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button> -->
       </div>
 
       <el-table
@@ -129,7 +129,7 @@ export default {
       this.cols = this.tCols;
       this.searchLabel = this.sLabel;
       this.pageTotal = this.tableData.length;
-      //console.log(this.tableData);
+      // console.log(this.pageTotal);
 
       this.infoURL = this.infoUrl;
 
@@ -143,17 +143,21 @@ export default {
     getDataByAxios() {
       var _this = this;
       var temp = this.currentPage; //记录删除前所在的页数
-      console.log(this.infoURL)
+      // console.log(this.infoURL);
       http
         .get(this.infoURL)
         .then(function(response) {
-          console.log(response);
-          console.log(response.data);
+          //console.log(response);
+          // console.log(response.data);
           //将tableData重新赋值
-          _this.tableData = response.data;
-          _this.pageTotal = _this.tableData.length;
+          _this.tableData = [];
+          _this.tableData = response.data.data;
+          // console.log(_this.pageTotal);
+
+          //_this.pageTotal = _this.tableData.length;
           //暂时这样写
           for (var i = 0; i < _this.tableData.length; i++) {
+            // console.log("1");
             //判断对象中是否存在status这一项，未测试
             if (_this.tableData[i].hasOwnProperty("status")) {
               if (_this.tableData[i]["status"] == false) {
@@ -162,14 +166,56 @@ export default {
                 _this.tableData[i]["status"] = "停用";
               }
             }
+
+            if (_this.tableData[i].hasOwnProperty("sex")) {
+              if (_this.tableData[i]["sex"] == 0) {
+                _this.tableData[i]["sex"] = "男";
+              } else if (_this.tableData[i]["sex"] == 1) {
+                _this.tableData[i]["sex"] = "女";
+              } else {
+                _this.tableData[i]["sex"] = "未知";
+              }
+            }
+
+            if (_this.tableData[i].hasOwnProperty("roles")) {
+              var role = "";
+              for (var j = 0; j < _this.tableData[i]["roles"].length; j++) {
+                role = _this.tableData[i]["roles"][j]["roleName"] + " " + role;
+              }
+              _this.tableData[i]["roles"] = role;
+            }
+
+            if (_this.tableData[i].hasOwnProperty("classDto")) {
+              _this.tableData[i]["className"] =
+                _this.tableData[i]["classDto"]["className"];
+            }
+
+            if (_this.tableData[i].hasOwnProperty("enableJoin")) {
+              _this.tableData[i]["enableJoin"] = _this.tableData[i][
+                "enableJoin"
+              ]
+                ? "可加入"
+                : "不可加入";
+            }
+
+            if (_this.tableData[i].hasOwnProperty("teacher")) {
+              _this.tableData[i]["teacherName"] =
+                _this.tableData[i]["teacher"] == null
+                  ? null
+                  : _this.tableData[i]["teacher"]["nickName"];
+            }
           }
           //若触发删除，可能需操控currentPage
           //例如第二页只有1条数据时，删掉该条数据，需要退回第一页
           //删除后，若当页还存在，留在当页，否则跳到删除后的最后一页
+          _this.pageTotal = _this.tableData.length;
           var x = Math.ceil(_this.pageTotal / _this.pageSize); //删除后数据的页数
+          // console.log(temp)
           if (x < temp) {
             _this.currentPage = x;
           }
+          _this.currentPage = _this.currentPage==0?1:_this.currentPage;
+          // console.log(_this.currentPage)
         })
         .catch(function(error) {
           console.log(error);

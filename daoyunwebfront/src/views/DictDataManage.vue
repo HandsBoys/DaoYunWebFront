@@ -123,8 +123,8 @@ export default {
       var _this = this;
       getDictDataInfoListApi(dT)
         .then(function(response) {
-          console.log(response);
-          _this.tableData = response.data;
+          // console.log(response);
+          _this.tableData = response.data.data;
           //暂时这样写
           for (var i = 0; i < _this.tableData.length; i++) {
             if (_this.tableData[i]["status"] == false) {
@@ -220,7 +220,7 @@ export default {
         if (valid) {
           editDictDataInfoApi(formData)
             .then(function(response) {
-              console.log(formData);
+              //console.log(formData);
               if (response.data.code == "200") {
                 _this.$message.success("修改成功");
                 _this.handleClose();
@@ -284,10 +284,8 @@ export default {
       var idForAllDel = "";
       for (let i = 0; i < formData.length; i++) {
         if (i == formData.length - 1) {
-          // idForAllDel = idForAllDel + formData[i].dictCode;
           idForAllDel = idForAllDel + formData[i].id;
         } else {
-          // idForAllDel = idForAllDel + formData[i].dictCode + ", ";
           idForAllDel = idForAllDel + formData[i].id + ", ";
         }
       }
@@ -302,7 +300,7 @@ export default {
         .then(() => {
           deleteDictDataInfoApi(idForAllDel)
             .then(function(response) {
-              console.log(response);
+              // console.log(response);
               if (response.data.code == "200") {
                 _this.$message.success("删除成功");
                 //通过全局变量刷新表格数据
@@ -325,7 +323,6 @@ export default {
     //初始化表单
     initForm() {
       this.form = {
-        // dictCode: undefined,
         id: undefined,
         dictType: undefined,
         dictLabel: undefined,
@@ -358,7 +355,7 @@ export default {
       var dictType = {};
 
       row = JSON.parse(temp);
-      console.log(row);
+      // console.log(row);
       dictType["dictType"] = row.dictType;
       this.infoUrl = "/system/dictdata?dictType=" + row.dictType;
       this.getDictDataInfo(dictType);
